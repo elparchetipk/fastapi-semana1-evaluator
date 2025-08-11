@@ -1,0 +1,86 @@
+name: Evaluate Semana 1
+
+on:
+  issues:
+    types: [opened, edited]
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      ( github.event_name == 'issues' &&
+        contains( join(github.event.issue.labels.*.name, ','), 'submission') )
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Checkout evaluator
+        uses: actions/checkout@v4
+
+      - name: Extract repo URL from issue body
+        id: extract
+        run: |
+          BODY="$(cat <<'EOF'\n${{ github.event.issue.body }}\nEOF\n)"
+          # Intenta encontrar una URL de GitHub
+          echo "$BODY" | grep -Eo 'https://github.com/[[:alnum:]_.-]+/[[:alnum:]_.-]+' | head -n1 > repo_url.txt || true
+          REPO_URL=$(cat repo_url.txt || true)
+          if [ -z "$REPO_URL" ]; then
+            echo "No repo URL found in issue body"
+            echo "repo_url=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "repo_url=$REPO_URL" >> $GITHUB_OUTPUT
+
+      - name: Stop if no repo URL
+        if: steps.extract.outputs.repo_url == ''
+        run: |
+          echo "No se encontró URL de repositorio en el issue. Edita el issue y agrega una URL válida."
+
+      - name: Clone student repo
+        if: steps.extract.outputs.repo_url != ''
+        run: |
+          git clone --depth=1 "${{ steps.extract.outputs.repo_url }}" student_repo
+
+      - name: Setup Python
+        if: steps.extract.outputs.repo_url != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install evaluator deps
+        if: steps.extract.outputs.repo_url != ''
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi httpx pytest anyio markdownify
+
+      - name: (Optional) Install student deps with timeout
+        if: steps.extract.outputs.repo_url != ''
+        run: |
+          cd student_repo
+          if [ -f requirements.txt ]; then
+            # Limita tiempo de instalación
+            timeout 120s pip install -r requirements.txt || echo "Instalación estudiante falló o tardó, se continúa con checks básicos"
+          fi
+
+      - name: Run evaluator
+        if: steps.extract.outputs.repo_url != ''
+        run: |
+          python -u evaluator/run.py --student-path ./student_repo --out-md report.md --out-json score.json
+
+      - name: Post feedback as comment
+        if: steps.extract.outputs.repo_url != ''
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body-file: report.md
+
+      - name: Add label segun resultado
+        if: steps.extract.outputs.repo_url != ''
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: ${{ fromJson( format('["{0}"]', (fromJson(file('score.json')).passed) && 'aprobado' || 'pendiente' )) }}
