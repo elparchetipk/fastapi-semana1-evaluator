@@ -315,4 +315,4 @@ Si tienes problemas con el evaluador:
 
 > 💡 **Recuerda**: Este evaluador es una herramienta de aprendizaje. Su objetivo es ayudarte a interiorizar los conceptos fundamentales de FastAPI mediante feedback inmediato y criterios claros.
 
-¡Buena suerte con tu proyecto! 🚀
+¡Éxitos con tu proyecto! 🚀
