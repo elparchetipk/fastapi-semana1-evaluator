@@ -1,0 +1,20 @@
+name: "📋 Week 8: Microservicios y APIs - Evaluación Automática"
+description: "Reporte automático de evaluación para Semana 8"
+title: "[Week 8] Evaluación Automática - Microservicios y APIs"
+labels: ["week-8", "evaluation", "fastapi"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📊 Resumen de Evaluación - Semana 8
+        
+        **Tema**: Microservicios y APIs
+        **Score Final**: ${{ final_score | round(1) }}/100
+        
+  - type: textarea
+    id: results
+    attributes:
+      label: "🎯 Resultados"
+      value: |
+        **Status**: ${{ status }}
+        **Listo para Week 9**: ${{ ready_for_next_week }}

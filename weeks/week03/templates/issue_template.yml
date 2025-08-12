@@ -1,0 +1,20 @@
+name: "📋 Week 3: Base de Datos con SQLAlchemy - Evaluación Automática"
+description: "Reporte automático de evaluación para Semana 3"
+title: "[Week 3] Evaluación Automática - Base de Datos con SQLAlchemy"
+labels: ["week-3", "evaluation", "fastapi"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📊 Resumen de Evaluación - Semana 3
+        
+        **Tema**: Base de Datos con SQLAlchemy
+        **Score Final**: ${{ final_score | round(1) }}/100
+        
+  - type: textarea
+    id: results
+    attributes:
+      label: "🎯 Resultados"
+      value: |
+        **Status**: ${{ status }}
+        **Listo para Week 4**: ${{ ready_for_next_week }}

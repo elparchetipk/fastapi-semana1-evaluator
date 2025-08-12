@@ -1,0 +1,20 @@
+name: "📋 Week 9: Performance y Caching - Evaluación Automática"
+description: "Reporte automático de evaluación para Semana 9"
+title: "[Week 9] Evaluación Automática - Performance y Caching"
+labels: ["week-9", "evaluation", "fastapi"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📊 Resumen de Evaluación - Semana 9
+        
+        **Tema**: Performance y Caching
+        **Score Final**: ${{ final_score | round(1) }}/100
+        
+  - type: textarea
+    id: results
+    attributes:
+      label: "🎯 Resultados"
+      value: |
+        **Status**: ${{ status }}
+        **Listo para Week 10**: ${{ ready_for_next_week }}

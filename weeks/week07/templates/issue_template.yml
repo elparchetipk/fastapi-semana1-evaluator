@@ -1,0 +1,20 @@
+name: "📋 Week 7: Deployment y Docker - Evaluación Automática"
+description: "Reporte automático de evaluación para Semana 7"
+title: "[Week 7] Evaluación Automática - Deployment y Docker"
+labels: ["week-7", "evaluation", "fastapi"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📊 Resumen de Evaluación - Semana 7
+        
+        **Tema**: Deployment y Docker
+        **Score Final**: ${{ final_score | round(1) }}/100
+        
+  - type: textarea
+    id: results
+    attributes:
+      label: "🎯 Resultados"
+      value: |
+        **Status**: ${{ status }}
+        **Listo para Week 8**: ${{ ready_for_next_week }}

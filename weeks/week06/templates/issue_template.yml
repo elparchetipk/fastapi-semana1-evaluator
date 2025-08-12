@@ -1,0 +1,20 @@
+name: "📋 Week 6: Background Tasks y WebSockets - Evaluación Automática"
+description: "Reporte automático de evaluación para Semana 6"
+title: "[Week 6] Evaluación Automática - Background Tasks y WebSockets"
+labels: ["week-6", "evaluation", "fastapi"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📊 Resumen de Evaluación - Semana 6
+        
+        **Tema**: Background Tasks y WebSockets
+        **Score Final**: ${{ final_score | round(1) }}/100
+        
+  - type: textarea
+    id: results
+    attributes:
+      label: "🎯 Resultados"
+      value: |
+        **Status**: ${{ status }}
+        **Listo para Week 7**: ${{ ready_for_next_week }}

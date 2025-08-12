@@ -1,0 +1,218 @@
+name: '📋 Week 2: CRUD Básico - Evaluación Automática'
+description: 'Reporte automático de evaluación para Semana 2: CRUD operations con FastAPI'
+title: '[Week 2] Evaluación Automática - CRUD Básico'
+labels: ['week-2', 'crud', 'evaluation', 'fastapi']
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📊 Resumen de Evaluación - Semana 2
+
+        **Tema**: CRUD Básico con FastAPI  
+        **Fecha**: ${{ evaluation_date }}  
+        **Score Final**: ${{ final_score | round(1) }}/100
+
+        ---
+
+  - type: textarea
+    id: general-results
+    attributes:
+      label: '🎯 Resultados Generales'
+      description: 'Resumen del estado general de la evaluación'
+      value: |
+        **Status**: ${{ status }}
+        **Listo para Week 3**: ${{ ready_for_next_week }}
+
+        ### Áreas Evaluadas:
+        - 📁 Estructura del Proyecto: ${{ structure_score }}/100
+        - 🏗️ Modelos Pydantic: ${{ models_score }}/100  
+        - 🔧 Operaciones CRUD: ${{ crud_score }}/100
+        - 🌐 Endpoints y API: ${{ endpoints_score }}/100
+        - ✅ Validación de Datos: ${{ validation_score }}/100
+        - 📝 Calidad de Código: ${{ quality_score }}/100
+
+  - type: checkboxes
+    id: structure-requirements
+    attributes:
+      label: '📁 Estructura del Proyecto'
+      description: 'Verificaciones de archivos y organización'
+      options:
+        - label: '✅ main.py presente y funcional'
+          required: false
+        - label: '✅ requirements.txt con dependencias correctas'
+          required: false
+        - label: '✅ README.md con documentación'
+          required: false
+        - label: '✅ Modelos organizados (models.py o en main.py)'
+          required: false
+        - label: '✅ Imports de FastAPI y Pydantic correctos'
+          required: false
+
+  - type: checkboxes
+    id: models-requirements
+    attributes:
+      label: '🏗️ Modelos Pydantic'
+      description: 'Implementación de modelos para validación de datos'
+      options:
+        - label: '✅ Pydantic importado correctamente'
+          required: false
+        - label: '✅ Modelos que heredan de BaseModel'
+          required: false
+        - label: '✅ Campos con tipos definidos'
+          required: false
+        - label: '✅ Validaciones usando Field() o validators'
+          required: false
+        - label: '✅ Modelos separados para Create/Update/Response'
+          required: false
+
+  - type: checkboxes
+    id: crud-requirements
+    attributes:
+      label: '🔧 Operaciones CRUD'
+      description: 'Implementación de Create, Read, Update, Delete'
+      options:
+        - label: '✅ CREATE: Endpoint POST para crear items'
+          required: false
+        - label: '✅ READ: Endpoint GET para listar items'
+          required: false
+        - label: '✅ READ: Endpoint GET para item específico'
+          required: false
+        - label: '✅ UPDATE: Endpoint PUT para actualizar items'
+          required: false
+        - label: '✅ DELETE: Endpoint DELETE para eliminar items'
+          required: false
+        - label: '✅ Almacenamiento en memoria funcionando'
+          required: false
+
+  - type: checkboxes
+    id: endpoints-requirements
+    attributes:
+      label: '🌐 Endpoints y API'
+      description: 'Funcionalidad y accesibilidad de la API'
+      options:
+        - label: '✅ Aplicación importable sin errores'
+          required: false
+        - label: '✅ Endpoints respondiendo correctamente'
+          required: false
+        - label: '✅ /docs accesible (documentación automática)'
+          required: false
+        - label: '✅ Parámetros de path funcionando'
+          required: false
+        - label: '✅ Request body siendo procesado'
+          required: false
+        - label: '✅ Respuestas en formato JSON'
+          required: false
+
+  - type: checkboxes
+    id: validation-requirements
+    attributes:
+      label: '✅ Validación de Datos'
+      description: 'Validación de entrada y manejo de errores'
+      options:
+        - label: '✅ Validación automática con Pydantic'
+          required: false
+        - label: '✅ Manejo de errores con HTTPException'
+          required: false
+        - label: '✅ Status codes apropiados (404, 422, etc.)'
+          required: false
+        - label: '✅ Validación de tipos de datos'
+          required: false
+        - label: '✅ Campos opcionales manejados correctamente'
+          required: false
+
+  - type: textarea
+    id: feedback-details
+    attributes:
+      label: '🔍 Feedback Detallado'
+      description: 'Observaciones específicas y recomendaciones'
+      value: |
+        ### 📝 Observaciones:
+        ${{ detailed_feedback }}
+
+        ### 🚀 Recomendaciones Prioritarias:
+        ${{ priority_recommendations }}
+
+        ### 💡 Sugerencias de Mejora:
+        ${{ improvement_suggestions }}
+
+  - type: textarea
+    id: code-examples
+    attributes:
+      label: '💻 Ejemplos de Código'
+      description: 'Ejemplos para implementar funcionalidades faltantes'
+      value: |
+        ### Modelo Pydantic Básico:
+        ```python
+        from pydantic import BaseModel
+        from typing import Optional
+
+        class ItemBase(BaseModel):
+            name: str
+            description: Optional[str] = None
+            price: float
+            
+        class ItemCreate(ItemBase):
+            pass
+            
+        class Item(ItemBase):
+            id: int
+            
+            class Config:
+                orm_mode = True
+        ```
+
+        ### Endpoint CRUD Básico:
+        ```python
+        from fastapi import FastAPI, HTTPException
+
+        app = FastAPI()
+        items_db = {}
+        next_id = 1
+
+        @app.post("/items/", response_model=Item)
+        def create_item(item: ItemCreate):
+            global next_id
+            new_item = Item(id=next_id, **item.dict())
+            items_db[next_id] = new_item
+            next_id += 1
+            return new_item
+            
+        @app.get("/items/{item_id}", response_model=Item)
+        def read_item(item_id: int):
+            if item_id not in items_db:
+                raise HTTPException(status_code=404, detail="Item not found")
+            return items_db[item_id]
+        ```
+
+  - type: checkboxes
+    id: next-steps
+    attributes:
+      label: '🎯 Próximos Pasos'
+      description: 'Acciones recomendadas antes de continuar'
+      options:
+        - label: 'Implementar todas las operaciones CRUD faltantes'
+          required: false
+        - label: 'Mejorar la validación de datos con Pydantic'
+          required: false
+        - label: 'Agregar manejo de errores apropiado'
+          required: false
+        - label: 'Documentar los endpoints en el README'
+          required: false
+        - label: 'Probar la aplicación con /docs'
+          required: false
+        - label: 'Revisar y mejorar la organización del código'
+          required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+
+        ## 📚 Recursos Adicionales
+
+        - [FastAPI Tutorial - SQL Databases](https://fastapi.tiangolo.com/tutorial/sql-databases/)
+        - [Pydantic Documentation](https://pydantic-docs.helpmanual.io/)
+        - [HTTP Status Codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
+
+        **¡Sigue adelante! 🚀 La semana 3 te espera con bases de datos reales.**

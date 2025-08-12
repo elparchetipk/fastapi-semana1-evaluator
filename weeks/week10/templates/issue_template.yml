@@ -1,0 +1,20 @@
+name: "📋 Week 10: GraphQL y Advanced APIs - Evaluación Automática"
+description: "Reporte automático de evaluación para Semana 10"
+title: "[Week 10] Evaluación Automática - GraphQL y Advanced APIs"
+labels: ["week-10", "evaluation", "fastapi"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📊 Resumen de Evaluación - Semana 10
+        
+        **Tema**: GraphQL y Advanced APIs
+        **Score Final**: ${{ final_score | round(1) }}/100
+        
+  - type: textarea
+    id: results
+    attributes:
+      label: "🎯 Resultados"
+      value: |
+        **Status**: ${{ status }}
+        **Listo para Week 11**: ${{ ready_for_next_week }}
