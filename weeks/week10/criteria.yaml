@@ -1,0 +1,102 @@
+week_info:
+  number: 10
+  title: 'Background Tasks y Async Processing'
+  description: 'Procesamiento asíncrono y tareas en segundo plano'
+  passing_threshold: 70
+  repository_template: 'ficha-apellido-nombre-fastapi-semana10'
+
+learning_objectives:
+  - 'Implementar background tasks'
+  - 'Configurar Celery con FastAPI'
+  - 'Manejar colas de mensajes'
+  - 'Procesar archivos asíncronamente'
+  - 'Monitorear tareas en segundo plano'
+
+categories:
+  background_tasks:
+    weight: 40
+    description: 'Tareas en segundo plano'
+    checks:
+      - name: 'fastapi_background_tasks'
+        points: 12
+        description: 'Background tasks nativas de FastAPI'
+        required: true
+      - name: 'celery_integration'
+        points: 15
+        description: 'Integración con Celery'
+        required: true
+      - name: 'task_monitoring'
+        points: 8
+        description: 'Monitoreo de tareas'
+        required: true
+      - name: 'task_scheduling'
+        points: 5
+        description: 'Programación de tareas'
+        required: false
+
+  async_processing:
+    weight: 30
+    description: 'Procesamiento asíncrono'
+    checks:
+      - name: 'file_processing'
+        points: 12
+        description: 'Procesamiento asíncrono de archivos'
+        required: true
+      - name: 'batch_operations'
+        points: 10
+        description: 'Operaciones por lotes'
+        required: true
+      - name: 'async_database_ops'
+        points: 8
+        description: 'Operaciones de BD asíncronas'
+        required: true
+
+  message_queues:
+    weight: 20
+    description: 'Colas de mensajes'
+    checks:
+      - name: 'redis_integration'
+        points: 8
+        description: 'Integración con Redis'
+        required: true
+      - name: 'queue_management'
+        points: 7
+        description: 'Gestión de colas'
+        required: true
+      - name: 'message_persistence'
+        points: 5
+        description: 'Persistencia de mensajes'
+        required: false
+
+  error_handling:
+    weight: 10
+    description: 'Manejo de errores en async'
+    checks:
+      - name: 'retry_mechanisms'
+        points: 5
+        description: 'Mecanismos de retry'
+        required: true
+      - name: 'dead_letter_queue'
+        points: 5
+        description: 'Dead letter queue'
+        required: false
+
+automation:
+  timeout_seconds: 400
+  required_files:
+    - 'main.py'
+    - 'tasks/'
+    - 'celery_app.py'
+    - 'worker/'
+
+  dependency_checks:
+    - package: 'celery'
+      required: true
+    - package: 'redis'
+      required: true
+
+  task_tests:
+    - type: 'background_task'
+      endpoint: '/process-file'
+    - type: 'celery_task'
+      task: 'process_data'

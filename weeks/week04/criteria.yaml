@@ -1,0 +1,118 @@
+week_info:
+  number: 4
+  title: 'Base de Datos con SQLAlchemy'
+  description: 'Integración de base de datos relacional con FastAPI'
+  passing_threshold: 70
+  repository_template: 'ficha-apellido-nombre-fastapi-semana4'
+
+learning_objectives:
+  - 'Configurar SQLAlchemy con FastAPI'
+  - 'Crear modelos de base de datos'
+  - 'Implementar migraciones con Alembic'
+  - 'Desarrollar CRUD con persistencia'
+  - 'Manejar relaciones entre entidades'
+
+categories:
+  database_setup:
+    weight: 30
+    description: 'Configuración de base de datos'
+    checks:
+      - name: 'sqlalchemy_installed'
+        points: 5
+        description: 'SQLAlchemy incluido en requirements'
+        required: true
+      - name: 'database_config'
+        points: 8
+        description: 'Configuración de conexión a BD'
+        required: true
+      - name: 'models_created'
+        points: 10
+        description: 'Modelos SQLAlchemy definidos'
+        required: true
+      - name: 'alembic_setup'
+        points: 7
+        description: 'Alembic configurado para migraciones'
+        required: false
+
+  crud_operations:
+    weight: 35
+    description: 'Operaciones CRUD con persistencia'
+    checks:
+      - name: 'create_operations'
+        points: 10
+        description: 'Endpoints para crear registros'
+        required: true
+      - name: 'read_operations'
+        points: 8
+        description: 'Endpoints para leer/listar registros'
+        required: true
+      - name: 'update_operations'
+        points: 10
+        description: 'Endpoints para actualizar registros'
+        required: true
+      - name: 'delete_operations'
+        points: 7
+        description: 'Endpoints para eliminar registros'
+        required: true
+
+  data_validation:
+    weight: 20
+    description: 'Validación y schemas'
+    checks:
+      - name: 'pydantic_schemas'
+        points: 8
+        description: 'Schemas Pydantic para validación'
+        required: true
+      - name: 'input_validation'
+        points: 7
+        description: 'Validación de datos de entrada'
+        required: true
+      - name: 'error_handling'
+        points: 5
+        description: 'Manejo adecuado de errores de BD'
+        required: true
+
+  api_design:
+    weight: 15
+    description: 'Diseño de API REST'
+    checks:
+      - name: 'rest_conventions'
+        points: 8
+        description: 'Convenciones REST correctas'
+        required: true
+      - name: 'status_codes'
+        points: 4
+        description: 'Códigos de estado HTTP apropiados'
+        required: true
+      - name: 'response_format'
+        points: 3
+        description: 'Formato consistente de respuestas'
+        required: true
+
+automation:
+  timeout_seconds: 300
+  required_files:
+    - 'main.py'
+    - 'requirements.txt'
+    - 'models/'
+    - 'schemas/'
+
+  dependency_checks:
+    - package: 'sqlalchemy'
+      min_version: '1.4.0'
+    - package: 'alembic'
+      required: false
+
+  database_tests:
+    - operation: 'create'
+      endpoint: '/items/'
+      method: 'POST'
+    - operation: 'read'
+      endpoint: '/items/'
+      method: 'GET'
+    - operation: 'update'
+      endpoint: '/items/{id}'
+      method: 'PUT'
+    - operation: 'delete'
+      endpoint: '/items/{id}'
+      method: 'DELETE'

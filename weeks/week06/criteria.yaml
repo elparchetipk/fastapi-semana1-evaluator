@@ -1,0 +1,108 @@
+week_info:
+  number: 6
+  title: 'Middleware y Configuración Avanzada'
+  description: 'Implementación de middleware, CORS, logging y configuración'
+  passing_threshold: 70
+  repository_template: 'ficha-apellido-nombre-fastapi-semana6'
+
+learning_objectives:
+  - 'Crear middleware personalizado'
+  - 'Configurar CORS adecuadamente'
+  - 'Implementar logging estructurado'
+  - 'Manejar variables de entorno'
+  - 'Optimizar rendimiento de la API'
+
+categories:
+  middleware:
+    weight: 35
+    description: 'Middleware y procesamiento de requests'
+    checks:
+      - name: 'custom_middleware'
+        points: 12
+        description: 'Middleware personalizado implementado'
+        required: true
+      - name: 'cors_configuration'
+        points: 8
+        description: 'CORS configurado correctamente'
+        required: true
+      - name: 'request_logging'
+        points: 8
+        description: 'Logging de requests/responses'
+        required: true
+      - name: 'error_middleware'
+        points: 7
+        description: 'Middleware de manejo de errores'
+        required: false
+
+  configuration:
+    weight: 25
+    description: 'Configuración y variables de entorno'
+    checks:
+      - name: 'environment_variables'
+        points: 10
+        description: 'Uso de variables de entorno'
+        required: true
+      - name: 'settings_management'
+        points: 8
+        description: 'Gestión centralizada de configuración'
+        required: true
+      - name: 'multiple_environments'
+        points: 7
+        description: 'Configuración para múltiples entornos'
+        required: false
+
+  logging:
+    weight: 20
+    description: 'Sistema de logging'
+    checks:
+      - name: 'structured_logging'
+        points: 8
+        description: 'Logging estructurado implementado'
+        required: true
+      - name: 'log_levels'
+        points: 6
+        description: 'Niveles de log apropiados'
+        required: true
+      - name: 'log_rotation'
+        points: 6
+        description: 'Rotación de logs configurada'
+        required: false
+
+  performance:
+    weight: 20
+    description: 'Optimización y rendimiento'
+    checks:
+      - name: 'async_operations'
+        points: 8
+        description: 'Uso adecuado de async/await'
+        required: true
+      - name: 'response_caching'
+        points: 7
+        description: 'Implementación de caché'
+        required: false
+      - name: 'request_validation'
+        points: 5
+        description: 'Validación eficiente de requests'
+        required: true
+
+automation:
+  timeout_seconds: 300
+  required_files:
+    - 'main.py'
+    - 'requirements.txt'
+    - 'middleware/'
+    - 'config/'
+
+  dependency_checks:
+    - package: 'python-dotenv'
+      required: true
+    - package: 'structlog'
+      required: false
+
+  middleware_tests:
+    - type: 'cors'
+      check: 'preflight_request'
+    - type: 'logging'
+      check: 'request_logged'
+    - type: 'custom'
+      check: 'middleware_applied'

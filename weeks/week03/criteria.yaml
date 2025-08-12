@@ -1,0 +1,99 @@
+week_info:
+  number: 3
+  title: "Base de Datos con SQLAlchemy"
+  description: "Integración de FastAPI con base de datos usando SQLAlchemy ORM"
+  passing_threshold: 70
+  repository_pattern: "*fastapi-semana3*"
+
+categories:
+  database_setup:
+    weight: 25
+    description: "Configuración de base de datos"
+    checks:
+      - name: "sqlalchemy_dependencies"
+        points: 8
+        description: "SQLAlchemy y driver de BD en requirements"
+        required: true
+      - name: "database_connection"
+        points: 10
+        description: "Configuración de conexión a BD"
+        required: true
+      - name: "models_definition"
+        points: 7
+        description: "Modelos SQLAlchemy definidos correctamente"
+        required: true
+
+  crud_with_db:
+    weight: 40
+    description: "CRUD operations con base de datos"
+    checks:
+      - name: "create_with_db"
+        points: 10
+        description: "CREATE: Insertar datos en BD"
+        required: true
+      - name: "read_with_db"
+        points: 10
+        description: "READ: Consultar datos desde BD"
+        required: true
+      - name: "update_with_db"
+        points: 10
+        description: "UPDATE: Actualizar datos en BD"
+        required: true
+      - name: "delete_with_db"
+        points: 10
+        description: "DELETE: Eliminar datos de BD"
+        required: true
+
+  data_integrity:
+    weight: 20
+    description: "Integridad y relaciones de datos"
+    checks:
+      - name: "relationships"
+        points: 8
+        description: "Relaciones entre tablas (Foreign Keys)"
+        required: true
+      - name: "constraints"
+        points: 7
+        description: "Restricciones y validaciones"
+        required: true
+      - name: "migrations"
+        points: 5
+        description: "Manejo básico de migraciones"
+        required: false
+
+  session_management:
+    weight: 15
+    description: "Manejo de sesiones de BD"
+    checks:
+      - name: "session_handling"
+        points: 8
+        description: "Manejo correcto de sesiones SQLAlchemy"
+        required: true
+      - name: "connection_pooling"
+        points: 7
+        description: "Configuración de pool de conexiones"
+        required: false
+
+bonus_criteria:
+  - name: "query_optimization"
+    points: 5
+    description: "Consultas optimizadas (joins, eager loading)"
+  - name: "database_seeding"
+    points: 5
+    description: "Datos de prueba iniciales"
+
+technologies:
+  required:
+    - fastapi
+    - sqlalchemy
+    - sqlite3 or postgresql
+  optional:
+    - alembic
+    - psycopg2
+
+learning_objectives:
+  - "Integrar FastAPI con SQLAlchemy"
+  - "Definir modelos de base de datos"
+  - "Implementar relaciones entre tablas"
+  - "Manejar sesiones de base de datos"
+  - "Realizar operaciones CRUD persistentes"

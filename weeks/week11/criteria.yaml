@@ -1,0 +1,124 @@
+week_info:
+  number: 11
+  title: 'Proyecto Final Integrador'
+  description: 'Aplicación completa integrando todos los conceptos del bootcamp'
+  passing_threshold: 80
+  repository_template: 'ficha-apellido-nombre-fastapi-proyecto-final'
+
+learning_objectives:
+  - 'Integrar todas las tecnologías aprendidas'
+  - 'Desarrollar aplicación completa y escalable'
+  - 'Implementar arquitectura limpia'
+  - 'Documentar proyecto profesionalmente'
+  - 'Presentar solución técnica'
+
+categories:
+  architecture:
+    weight: 25
+    description: 'Arquitectura y diseño'
+    checks:
+      - name: 'clean_architecture'
+        points: 10
+        description: 'Arquitectura limpia implementada'
+        required: true
+      - name: 'design_patterns'
+        points: 8
+        description: 'Patrones de diseño aplicados'
+        required: true
+      - name: 'scalability'
+        points: 7
+        description: 'Diseño escalable'
+        required: true
+
+  feature_completeness:
+    weight: 30
+    description: 'Completitud de features'
+    checks:
+      - name: 'full_crud_operations'
+        points: 8
+        description: 'CRUD completo con BD'
+        required: true
+      - name: 'authentication_system'
+        points: 8
+        description: 'Sistema de autenticación'
+        required: true
+      - name: 'real_time_features'
+        points: 7
+        description: 'Features en tiempo real'
+        required: false
+      - name: 'background_processing'
+        points: 7
+        description: 'Procesamiento en segundo plano'
+        required: false
+
+  code_quality:
+    weight: 20
+    description: 'Calidad de código'
+    checks:
+      - name: 'code_organization'
+        points: 8
+        description: 'Organización de código'
+        required: true
+      - name: 'testing_coverage'
+        points: 7
+        description: 'Cobertura de tests > 70%'
+        required: true
+      - name: 'code_documentation'
+        points: 5
+        description: 'Documentación de código'
+        required: true
+
+  deployment:
+    weight: 15
+    description: 'Deploy y producción'
+    checks:
+      - name: 'containerization'
+        points: 8
+        description: 'Aplicación containerizada'
+        required: true
+      - name: 'production_deployment'
+        points: 7
+        description: 'Deploy en producción'
+        required: true
+
+  documentation:
+    weight: 10
+    description: 'Documentación del proyecto'
+    checks:
+      - name: 'project_documentation'
+        points: 5
+        description: 'README completo y profesional'
+        required: true
+      - name: 'api_documentation'
+        points: 5
+        description: 'Documentación de API'
+        required: true
+
+presentation:
+  required: true
+  duration_minutes: 15
+  criteria:
+    - 'Explicación de la arquitectura'
+    - 'Demostración de funcionalidades'
+    - 'Justificación de decisiones técnicas'
+    - 'Discusión de challenges y soluciones'
+
+automation:
+  timeout_seconds: 600
+  required_files:
+    - 'main.py'
+    - 'requirements.txt'
+    - 'Dockerfile'
+    - 'docker-compose.yml'
+    - 'tests/'
+    - 'README.md'
+
+  comprehensive_tests:
+    - type: 'unit_tests'
+      command: 'pytest tests/unit/'
+    - type: 'integration_tests'
+      command: 'pytest tests/integration/'
+    - type: 'api_tests'
+      command: 'pytest tests/api/'
+    - type: 'deployment_test'
+      command: 'docker-compose up -d'

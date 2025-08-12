@@ -1,0 +1,108 @@
+week_info:
+  number: 7
+  title: 'Testing y Calidad de Código'
+  description: 'Implementación de testing automatizado y buenas prácticas'
+  passing_threshold: 75
+  repository_template: 'ficha-apellido-nombre-fastapi-semana7'
+
+learning_objectives:
+  - 'Escribir tests unitarios con pytest'
+  - 'Implementar tests de integración'
+  - 'Configurar cobertura de código'
+  - 'Aplicar buenas prácticas de testing'
+  - 'Automatizar testing con CI/CD'
+
+categories:
+  unit_testing:
+    weight: 35
+    description: 'Tests unitarios'
+    checks:
+      - name: 'pytest_setup'
+        points: 8
+        description: 'Pytest configurado correctamente'
+        required: true
+      - name: 'test_coverage'
+        points: 12
+        description: 'Cobertura de tests > 80%'
+        required: true
+      - name: 'test_endpoints'
+        points: 10
+        description: 'Tests para todos los endpoints'
+        required: true
+      - name: 'test_models'
+        points: 5
+        description: 'Tests para modelos de datos'
+        required: true
+
+  integration_testing:
+    weight: 25
+    description: 'Tests de integración'
+    checks:
+      - name: 'database_tests'
+        points: 10
+        description: 'Tests con base de datos'
+        required: true
+      - name: 'api_tests'
+        points: 8
+        description: 'Tests end-to-end de API'
+        required: true
+      - name: 'auth_tests'
+        points: 7
+        description: 'Tests de autenticación'
+        required: true
+
+  test_quality:
+    weight: 20
+    description: 'Calidad de tests'
+    checks:
+      - name: 'test_isolation'
+        points: 8
+        description: 'Tests aislados e independientes'
+        required: true
+      - name: 'test_data_fixtures'
+        points: 6
+        description: 'Uso de fixtures para datos de prueba'
+        required: true
+      - name: 'test_documentation'
+        points: 6
+        description: 'Tests bien documentados'
+        required: false
+
+  ci_cd:
+    weight: 20
+    description: 'Integración continua'
+    checks:
+      - name: 'github_actions'
+        points: 10
+        description: 'GitHub Actions configurado'
+        required: false
+      - name: 'automated_testing'
+        points: 6
+        description: 'Tests automáticos en CI'
+        required: false
+      - name: 'code_quality_checks'
+        points: 4
+        description: 'Checks de calidad de código'
+        required: false
+
+automation:
+  timeout_seconds: 400
+  required_files:
+    - 'main.py'
+    - 'requirements.txt'
+    - 'tests/'
+    - 'pytest.ini'
+
+  dependency_checks:
+    - package: 'pytest'
+      required: true
+    - package: 'pytest-cov'
+      required: true
+    - package: 'httpx'
+      required: true
+
+  test_execution:
+    - command: 'pytest'
+      timeout: 120
+    - command: 'pytest --cov=.'
+      coverage_threshold: 80

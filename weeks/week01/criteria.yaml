@@ -1,0 +1,135 @@
+week_info:
+  number: 1
+  title: 'Hello World API'
+  description: 'Fundamentos de FastAPI - Creación de API básica'
+  passing_threshold: 70
+  repository_template: 'ficha-apellido-nombre-fastapi-semana1'
+
+learning_objectives:
+  - 'Configurar entorno de desarrollo FastAPI'
+  - 'Crear aplicación FastAPI básica'
+  - 'Implementar endpoints simples'
+  - 'Generar documentación automática'
+  - 'Ejecutar servidor de desarrollo'
+
+categories:
+  setup:
+    weight: 25
+    description: 'Configuración inicial del proyecto'
+    checks:
+      - name: 'requirements_txt'
+        points: 5
+        description: 'Archivo requirements.txt presente y válido'
+        required: true
+      - name: 'fastapi_dependency'
+        points: 8
+        description: 'FastAPI incluido en requirements.txt'
+        required: true
+      - name: 'uvicorn_dependency'
+        points: 4
+        description: 'Uvicorn incluido en requirements.txt'
+        required: true
+      - name: 'main_py_exists'
+        points: 4
+        description: 'Archivo main.py presente en la raíz'
+        required: true
+      - name: 'readme_exists'
+        points: 4
+        description: 'README.md presente con instrucciones'
+        required: true
+
+  functionality:
+    weight: 40
+    description: 'Funcionalidad de la API'
+    checks:
+      - name: 'app_import'
+        points: 15
+        description: 'Aplicación FastAPI importable sin errores'
+        required: true
+      - name: 'root_endpoint'
+        points: 15
+        description: 'Endpoint GET / funcional que retorna JSON'
+        required: true
+      - name: 'parametric_endpoint'
+        points: 10
+        description: 'Endpoint con parámetros (ej: /hello/{name})'
+        required: false
+
+  documentation:
+    weight: 20
+    description: 'Documentación y accesibilidad'
+    checks:
+      - name: 'docs_accessible'
+        points: 12
+        description: '/docs accesible y funcional'
+        required: true
+      - name: 'json_responses'
+        points: 8
+        description: 'Respuestas en formato JSON válido'
+        required: true
+
+  deliverables:
+    weight: 10
+    description: 'Entregables y organización'
+    checks:
+      - name: 'project_structure'
+        points: 5
+        description: 'Estructura de proyecto adecuada'
+        required: true
+      - name: 'code_quality'
+        points: 5
+        description: 'Código limpio y bien organizado'
+        required: false
+
+  understanding:
+    weight: 5
+    description: 'Comprensión conceptual'
+    checks:
+      - name: 'readme_reflection'
+        points: 3
+        description: 'Reflexión sobre FastAPI en README'
+        required: false
+      - name: 'setup_commands'
+        points: 2
+        description: 'Comandos de instalación y ejecución en README'
+        required: true
+
+# Configuración específica para checks automatizados
+automation:
+  timeout_seconds: 180
+  required_files:
+    - 'main.py'
+    - 'requirements.txt'
+    - 'README.md'
+
+  dependency_checks:
+    - package: 'fastapi'
+      min_version: '0.68.0'
+    - package: 'uvicorn'
+      required: true
+
+  endpoint_tests:
+    - path: '/'
+      method: 'GET'
+      expected_status: 200
+      expected_content_type: 'application/json'
+    - path: '/docs'
+      method: 'GET'
+      expected_status: [200, 307, 308]
+
+feedback_templates:
+  success: |
+    ¡Excelente trabajo! Has completado exitosamente los fundamentos de FastAPI.
+    Tu aplicación cumple con todos los criterios básicos.
+
+  missing_setup: |
+    • Asegúrate de tener {missing_files} en la raíz del proyecto
+    • Incluye fastapi y uvicorn en requirements.txt
+
+  app_errors: |
+    • Revisa que main.py tenga `app = FastAPI()` sin errores de sintaxis
+    • Verifica que la aplicación se importe correctamente
+
+  endpoint_issues: |
+    • Implementa un endpoint GET / que retorne JSON
+    • Asegúrate de que /docs sea accesible

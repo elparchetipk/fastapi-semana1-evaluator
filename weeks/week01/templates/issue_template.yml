@@ -1,0 +1,112 @@
+name: 'Entrega Semana 1 - Hello World API'
+description: 'Envía la URL de tu repositorio público con tu primera API en FastAPI'
+title: '[SEM1] Entrega - <Ficha> - <ApellidoNombre>'
+labels: ['semana1', 'submission', 'week01']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🚀 Entrega Semana 1 - Hello World API
+
+        ¡Bienvenido/a al bootcamp de FastAPI! Esta es tu primera entrega donde demostrarás que has aprendido los fundamentos básicos de FastAPI.
+
+        ### 📋 Objetivos de esta semana:
+        - ✅ Configurar entorno de desarrollo FastAPI
+        - ✅ Crear tu primera aplicación FastAPI
+        - ✅ Implementar endpoints básicos
+        - ✅ Generar documentación automática
+        - ✅ Documentar tu proyecto
+
+  - type: input
+    id: student_name
+    attributes:
+      label: Nombre completo
+      placeholder: 'Tu nombre y apellido completos'
+    validations:
+      required: true
+
+  - type: input
+    id: ficha
+    attributes:
+      label: Ficha / Curso
+      placeholder: 'Ej: 3147246'
+    validations:
+      required: true
+
+  - type: input
+    id: repo_url
+    attributes:
+      label: URL del repositorio (público)
+      placeholder: 'https://github.com/usuario/ficha-apellido-nombre-fastapi-semana1'
+      description: '⚠️ El repositorio DEBE ser público para que el evaluador pueda acceder'
+    validations:
+      required: true
+
+  - type: textarea
+    id: endpoints_implemented
+    attributes:
+      label: Endpoints implementados
+      placeholder: |
+        Describe brevemente los endpoints que implementaste:
+        - GET / - Endpoint raíz que retorna...
+        - GET /hello/{name} - Endpoint que saluda...
+        - Otros endpoints (opcional)...
+      rows: 4
+    validations:
+      required: true
+
+  - type: textarea
+    id: challenges_faced
+    attributes:
+      label: Desafíos enfrentados (opcional)
+      placeholder: |
+        Comparte los principales desafíos que enfrentaste y cómo los resolviste:
+        - Problema con la instalación de...
+        - Dificultad entendiendo...
+        - Error que me tomó tiempo resolver...
+      rows: 3
+    validations:
+      required: false
+
+  - type: textarea
+    id: learnings
+    attributes:
+      label: Aprendizajes clave
+      placeholder: |
+        ¿Qué aprendiste de FastAPI esta semana?
+        - FastAPI es...
+        - La documentación automática me ayudó a...
+        - Me sorprendió que...
+      rows: 3
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Lista de verificación previa
+      description: 'Marca todas las casillas antes de enviar'
+      options:
+        - label: 'Mi repositorio es **público**'
+          required: true
+        - label: 'Tengo `main.py` en la raíz del proyecto'
+          required: true
+        - label: 'Tengo `requirements.txt` con fastapi y uvicorn'
+          required: true
+        - label: 'Tengo `README.md` con instrucciones de instalación y ejecución'
+          required: true
+        - label: 'Mi endpoint GET / retorna JSON'
+          required: true
+        - label: 'Puedo acceder a `/docs` en mi aplicación'
+          required: true
+        - label: 'He probado que mi aplicación funciona con `uvicorn main:app --reload`'
+          required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notas adicionales (opcional)
+      placeholder: 'Cualquier comentario adicional para el instructor...'
+      rows: 2
+    validations:
+      required: false

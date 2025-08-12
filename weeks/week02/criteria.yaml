@@ -1,0 +1,102 @@
+week_info:
+  number: 2
+  title: 'CRUD Básico con FastAPI'
+  description: 'Operaciones Create, Read, Update, Delete con datos en memoria'
+  passing_threshold: 70
+  repository_pattern: '*fastapi-semana2*'
+
+categories:
+  setup:
+    weight: 20
+    description: 'Configuración del proyecto y dependencias'
+    checks:
+      - name: 'requirements_complete'
+        points: 8
+        description: 'Dependencies: fastapi, uvicorn, pydantic'
+        required: true
+      - name: 'project_structure'
+        points: 6
+        description: 'Estructura organizada (models, routes, etc.)'
+        required: true
+      - name: 'main_py_organized'
+        points: 6
+        description: 'main.py bien estructurado'
+        required: true
+
+  crud_operations:
+    weight: 45
+    description: 'Implementación de operaciones CRUD'
+    checks:
+      - name: 'create_endpoint'
+        points: 12
+        description: 'POST endpoint para crear elementos'
+        required: true
+      - name: 'read_all_endpoint'
+        points: 8
+        description: 'GET endpoint para listar todos los elementos'
+        required: true
+      - name: 'read_one_endpoint'
+        points: 10
+        description: 'GET endpoint para obtener elemento por ID'
+        required: true
+      - name: 'update_endpoint'
+        points: 10
+        description: 'PUT/PATCH endpoint para actualizar elemento'
+        required: true
+      - name: 'delete_endpoint'
+        points: 5
+        description: 'DELETE endpoint para eliminar elemento'
+        required: true
+
+  data_validation:
+    weight: 20
+    description: 'Validación de datos con Pydantic'
+    checks:
+      - name: 'pydantic_models'
+        points: 10
+        description: 'Modelos Pydantic para validación'
+        required: true
+      - name: 'request_validation'
+        points: 5
+        description: 'Validación de datos de entrada'
+        required: true
+      - name: 'response_models'
+        points: 5
+        description: 'Modelos de respuesta definidos'
+        required: false
+
+  error_handling:
+    weight: 15
+    description: 'Manejo de errores HTTP'
+    checks:
+      - name: 'http_exceptions'
+        points: 8
+        description: 'HTTPException para errores 404, 400, etc.'
+        required: true
+      - name: 'status_codes'
+        points: 7
+        description: 'Status codes HTTP apropiados'
+        required: true
+
+bonus_criteria:
+  - name: 'data_persistence'
+    points: 5
+    description: 'Datos persisten durante la sesión'
+  - name: 'input_sanitization'
+    points: 5
+    description: 'Sanitización básica de inputs'
+
+technologies:
+  required:
+    - fastapi
+    - uvicorn
+    - pydantic
+  optional:
+    - typing
+
+learning_objectives:
+  - 'Implementar operaciones CRUD completas'
+  - 'Usar Pydantic para validación de datos'
+  - 'Manejar errores HTTP apropiadamente'
+  - 'Organizar código en módulos'
+  - 'Trabajar con datos en memoria'

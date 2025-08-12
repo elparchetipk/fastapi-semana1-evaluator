@@ -1,0 +1,98 @@
+week_info:
+  number: 8
+  title: 'Deployment y Containerización'
+  description: 'Deploy de aplicaciones FastAPI con Docker y servicios cloud'
+  passing_threshold: 70
+  repository_template: 'ficha-apellido-nombre-fastapi-semana8'
+
+learning_objectives:
+  - 'Containerizar aplicación con Docker'
+  - 'Configurar Docker Compose'
+  - 'Deploy en servicios cloud'
+  - 'Configurar reverse proxy'
+  - 'Implementar health checks'
+
+categories:
+  containerization:
+    weight: 40
+    description: 'Docker y containerización'
+    checks:
+      - name: 'dockerfile_creation'
+        points: 12
+        description: 'Dockerfile optimizado'
+        required: true
+      - name: 'docker_compose'
+        points: 10
+        description: 'Docker Compose configurado'
+        required: true
+      - name: 'multi_stage_build'
+        points: 8
+        description: 'Build multi-stage para optimización'
+        required: false
+      - name: 'container_security'
+        points: 10
+        description: 'Prácticas de seguridad en containers'
+        required: true
+
+  deployment:
+    weight: 30
+    description: 'Deploy y configuración'
+    checks:
+      - name: 'cloud_deployment'
+        points: 15
+        description: 'Deploy exitoso en cloud'
+        required: true
+      - name: 'environment_config'
+        points: 8
+        description: 'Configuración de entorno productivo'
+        required: true
+      - name: 'ssl_configuration'
+        points: 7
+        description: 'HTTPS configurado'
+        required: false
+
+  monitoring:
+    weight: 20
+    description: 'Monitoreo y observabilidad'
+    checks:
+      - name: 'health_checks'
+        points: 8
+        description: 'Health checks implementados'
+        required: true
+      - name: 'logging_production'
+        points: 7
+        description: 'Logging para producción'
+        required: true
+      - name: 'metrics_collection'
+        points: 5
+        description: 'Recolección de métricas'
+        required: false
+
+  infrastructure:
+    weight: 10
+    description: 'Infraestructura como código'
+    checks:
+      - name: 'reverse_proxy'
+        points: 5
+        description: 'Reverse proxy configurado'
+        required: false
+      - name: 'database_persistence'
+        points: 5
+        description: 'Persistencia de base de datos'
+        required: true
+
+automation:
+  timeout_seconds: 600
+  required_files:
+    - 'Dockerfile'
+    - 'docker-compose.yml'
+    - 'requirements.txt'
+    - '.dockerignore'
+
+  deployment_tests:
+    - type: 'build'
+      command: 'docker build .'
+    - type: 'compose'
+      command: 'docker-compose up -d'
+    - type: 'health'
+      endpoint: '/health'

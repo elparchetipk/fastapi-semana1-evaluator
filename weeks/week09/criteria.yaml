@@ -1,0 +1,92 @@
+week_info:
+  number: 9
+  title: 'WebSockets y Comunicación en Tiempo Real'
+  description: 'Implementación de WebSockets y features avanzadas'
+  passing_threshold: 70
+  repository_template: 'ficha-apellido-nombre-fastapi-semana9'
+
+learning_objectives:
+  - 'Implementar WebSockets con FastAPI'
+  - 'Crear chat en tiempo real'
+  - 'Manejar conexiones concurrentes'
+  - 'Implementar pub/sub patterns'
+  - 'Optimizar performance async'
+
+categories:
+  websockets:
+    weight: 45
+    description: 'Implementación de WebSockets'
+    checks:
+      - name: 'websocket_endpoint'
+        points: 15
+        description: 'Endpoint WebSocket funcional'
+        required: true
+      - name: 'connection_management'
+        points: 12
+        description: 'Gestión de conexiones'
+        required: true
+      - name: 'message_broadcasting'
+        points: 10
+        description: 'Broadcast de mensajes'
+        required: true
+      - name: 'connection_authentication'
+        points: 8
+        description: 'Autenticación en WebSockets'
+        required: false
+
+  real_time_features:
+    weight: 30
+    description: 'Features en tiempo real'
+    checks:
+      - name: 'chat_implementation'
+        points: 12
+        description: 'Sistema de chat funcional'
+        required: true
+      - name: 'real_time_notifications'
+        points: 10
+        description: 'Notificaciones en tiempo real'
+        required: true
+      - name: 'presence_system'
+        points: 8
+        description: 'Sistema de presencia (online/offline)'
+        required: false
+
+  performance:
+    weight: 15
+    description: 'Optimización y rendimiento'
+    checks:
+      - name: 'async_optimization'
+        points: 8
+        description: 'Optimización asíncrona'
+        required: true
+      - name: 'connection_pooling'
+        points: 7
+        description: 'Pool de conexiones eficiente'
+        required: false
+
+  integration:
+    weight: 10
+    description: 'Integración con sistema existente'
+    checks:
+      - name: 'database_integration'
+        points: 5
+        description: 'Integración con base de datos'
+        required: true
+      - name: 'rest_websocket_integration'
+        points: 5
+        description: 'Integración REST + WebSocket'
+        required: true
+
+automation:
+  timeout_seconds: 300
+  required_files:
+    - 'main.py'
+    - 'websockets/'
+    - 'static/'
+    - 'templates/'
+
+  websocket_tests:
+    - endpoint: '/ws'
+      test_type: 'connection'
+    - endpoint: '/ws/chat'
+      test_type: 'message_echo'

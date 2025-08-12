@@ -1,0 +1,109 @@
+week_info:
+  number: 5
+  title: 'Autenticación y Autorización'
+  description: 'Implementación de seguridad con JWT y OAuth2'
+  passing_threshold: 70
+  repository_template: 'ficha-apellido-nombre-fastapi-semana5'
+
+learning_objectives:
+  - 'Implementar autenticación JWT'
+  - 'Configurar OAuth2 con FastAPI'
+  - 'Crear middleware de autorización'
+  - 'Manejar roles y permisos'
+  - 'Proteger endpoints sensibles'
+
+categories:
+  authentication:
+    weight: 40
+    description: 'Sistema de autenticación'
+    checks:
+      - name: 'jwt_implementation'
+        points: 15
+        description: 'Implementación de JWT tokens'
+        required: true
+      - name: 'login_endpoint'
+        points: 10
+        description: 'Endpoint de login funcional'
+        required: true
+      - name: 'password_hashing'
+        points: 8
+        description: 'Hash seguro de contraseñas'
+        required: true
+      - name: 'token_validation'
+        points: 7
+        description: 'Validación de tokens JWT'
+        required: true
+
+  authorization:
+    weight: 30
+    description: 'Control de acceso y permisos'
+    checks:
+      - name: 'protected_endpoints'
+        points: 12
+        description: 'Endpoints protegidos con autenticación'
+        required: true
+      - name: 'role_based_access'
+        points: 10
+        description: 'Control de acceso basado en roles'
+        required: false
+      - name: 'dependency_injection'
+        points: 8
+        description: 'Uso de dependencias para autenticación'
+        required: true
+
+  security:
+    weight: 20
+    description: 'Medidas de seguridad'
+    checks:
+      - name: 'secure_endpoints'
+        points: 8
+        description: 'Endpoints seguros (HTTPS ready)'
+        required: true
+      - name: 'input_sanitization'
+        points: 7
+        description: 'Sanitización de entradas'
+        required: true
+      - name: 'error_handling_security'
+        points: 5
+        description: 'Manejo seguro de errores'
+        required: true
+
+  user_management:
+    weight: 10
+    description: 'Gestión de usuarios'
+    checks:
+      - name: 'user_registration'
+        points: 5
+        description: 'Endpoint de registro de usuarios'
+        required: true
+      - name: 'user_profile'
+        points: 5
+        description: 'Gestión de perfil de usuario'
+        required: false
+
+automation:
+  timeout_seconds: 300
+  required_files:
+    - 'main.py'
+    - 'requirements.txt'
+    - 'auth/'
+    - 'models/user.py'
+
+  dependency_checks:
+    - package: 'python-jose'
+      required: true
+    - package: 'passlib'
+      required: true
+    - package: 'python-multipart'
+      required: true
+
+  auth_tests:
+    - endpoint: '/token'
+      method: 'POST'
+      test_type: 'login'
+    - endpoint: '/users/me'
+      method: 'GET'
+      test_type: 'protected'
+    - endpoint: '/users/'
+      method: 'POST'
+      test_type: 'registration'
