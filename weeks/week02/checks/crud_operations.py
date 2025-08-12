@@ -1,264 +1,217 @@
 """
-Verificaciones de operaciones CRUD específicas para Week 2
+Verificaciones de operaciones CRUD específicas para Week 2 - Versión autocontenida (análisis estático)
 """
-import sys
 from pathlib import Path
 from typing import Dict, Any, List
+import ast
 
-# Importar las funciones del evaluador actual para reutilización
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "evaluator"))
-
-try:
-    from checks_endpoints import probe_endpoints
-    from checks_app_import import try_import_app
-except ImportError:
-    def probe_endpoints(app_import_result):
-        return {"ok": False, "error": "Could not import probe_endpoints"}
-    
-    def try_import_app(root):
-        return {"import_ok": False, "error": "Could not import try_import_app"}
+# Métodos HTTP que nos interesan
+HTTP_METHODS = {"get", "post", "put", "patch", "delete"}
 
 
-def check_crud_operations(repo_path: str) -> Dict[str, Any]:
-    """
-    Verifica que las operaciones CRUD básicas estén implementadas y funcionen
-    
-    Args:
-        repo_path: Ruta al repositorio del estudiante
-        
-    Returns:
-        Dict con resultados de verificación de operaciones CRUD
-    """
-    repo_root = Path(repo_path)
-    
-    # Primero intentar importar la app
-    app_import_result = try_import_app(repo_root)
-    
-    if not app_import_result.get("import_ok"):
-        return {
-            "app_importable": False,
-            "create_operation": False,
-            "read_operation": False,
-            "read_all_operation": False,
-            "update_operation": False,
-            "delete_operation": False,
-            "crud_score": 0,
-            "error": app_import_result.get("error", "Unknown import error")
-        }
-    
-    # Probar endpoints CRUD
-    endpoint_results = probe_endpoints(app_import_result)
-    
-    # Analizar el código para buscar operaciones CRUD
-    crud_analysis = _analyze_crud_code(repo_root)
-    
-    # Verificar endpoints CRUD típicos
-    crud_endpoints = _check_crud_endpoints(endpoint_results)
-    
-    # Calcular score de CRUD
-    crud_score = _calculate_crud_score(crud_endpoints, crud_analysis)
-    
-    return {
-        "app_importable": True,
-        "create_operation": crud_endpoints.get("create", False),
-        "read_operation": crud_endpoints.get("read", False),
-        "read_all_operation": crud_endpoints.get("read_all", False),
-        "update_operation": crud_endpoints.get("update", False),
-        "delete_operation": crud_endpoints.get("delete", False),
-        "crud_in_code": crud_analysis,
-        "crud_endpoints": crud_endpoints,
-        "crud_score": crud_score,
-        "endpoint_details": endpoint_results
-    }
+def _collect_code(repo_root: Path) -> Dict[str, str]:
+    """Recolecta contenido de archivos potencialmente relevantes."""
+    targets: List[Path] = []
+    for name in ["main.py", "models.py", "schemas.py"]:
+        p = repo_root / name
+        if p.exists():
+            targets.append(p)
+    for sub in ["routers", "routes"]:
+        d = repo_root / sub
+        if d.exists():
+            targets.extend(sorted(d.glob("*.py")))
+    contents = {}
+    for p in targets:
+        try:
+            contents[str(p.relative_to(repo_root))] = p.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            pass
+    return contents
 
 
-def _analyze_crud_code(repo_root: Path) -> Dict[str, Any]:
-    """
-    Analiza el código para detectar patrones de operaciones CRUD
-    """
-    analysis = {
-        "has_post_decorator": False,
-        "has_get_decorator": False,
-        "has_put_decorator": False,
-        "has_delete_decorator": False,
-        "has_data_storage": False,
-        "has_item_model": False,
-        "uses_path_parameters": False,
-        "uses_request_body": False
-    }
-    
-    # Archivos a analizar
-    files_to_check = ["main.py", "models.py", "schemas.py", "routers/*.py"]
-    
-    code_content = ""
-    for file_pattern in files_to_check:
-        if "*" in file_pattern:
-            # Pattern matching para routers
-            router_dir = repo_root / "routers"
-            if router_dir.exists():
-                for py_file in router_dir.glob("*.py"):
-                    try:
-                        with open(py_file, 'r', encoding='utf-8') as f:
-                            code_content += f.read() + "\n"
-                    except:
-                        continue
-        else:
-            file_path = repo_root / file_pattern
-            if file_path.exists():
-                try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        code_content += f.read() + "\n"
-                except:
-                    continue
-    
-    if code_content:
-        # Analizar patrones CRUD
-        analysis.update({
-            "has_post_decorator": "@app.post(" in code_content or "@router.post(" in code_content,
-            "has_get_decorator": "@app.get(" in code_content or "@router.get(" in code_content,
-            "has_put_decorator": "@app.put(" in code_content or "@router.put(" in code_content,
-            "has_delete_decorator": "@app.delete(" in code_content or "@router.delete(" in code_content,
-            "has_data_storage": any(keyword in code_content.lower() for keyword in ["items = ", "data = ", "database", "storage"]),
-            "has_item_model": "BaseModel" in code_content,
-            "uses_path_parameters": "{" in code_content and "}" in code_content,
-            "uses_request_body": any(param in code_content for param in ["request:", "body:", "item:", "data:"])
-        })
-    
-    return analysis
+def _parse_endpoints(all_code: str) -> List[Dict[str, Any]]:
+    """Extrae endpoints usando AST buscando decoradores @app.<method>("/path")."""
+    endpoints: List[Dict[str, Any]] = []
+    try:
+        tree = ast.parse(all_code)
+    except SyntaxError:
+        return endpoints
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef):
+            for dec in node.decorator_list:
+                # Formas posibles: @app.get("/items") o @router.post("/items/")
+                if isinstance(dec, ast.Call) and isinstance(dec.func, ast.Attribute):
+                    method = dec.func.attr.lower()
+                    if method in HTTP_METHODS:
+                        path = None
+                        if dec.args:
+                            arg0 = dec.args[0]
+                            if isinstance(arg0, ast.Constant) and isinstance(arg0.value, str):
+                                path = arg0.value
+                        # Extraer parámetros de path {param}
+                        path_params = []
+                        if path:
+                            path_params = [seg[1:-1] for seg in path.split('/') if seg.startswith('{') and seg.endswith('}')]
+                        endpoints.append({
+                            "function": node.name,
+                            "method": method.upper(),
+                            "path": path or "",
+                            "path_params": path_params
+                        })
+    return endpoints
 
 
-def _check_crud_endpoints(endpoint_results: Dict[str, Any]) -> Dict[str, bool]:
-    """
-    Verifica endpoints CRUD específicos basándose en los resultados de pruebas
-    """
-    crud_endpoints = {
+def _detect_storage_patterns(all_code: str) -> bool:
+    patterns = ["items =", "data =", "database", "storage", "_db", "memory_store"]
+    low = all_code.lower()
+    return any(p in low for p in patterns)
+
+
+def _detect_model_usage(all_code: str) -> bool:
+    return "BaseModel" in all_code
+
+
+def _has_request_body_indicator(fn_src: str) -> bool:
+    # Heurística simple: anotación de parámetro con BaseModel o dict
+    return any(token in fn_src for token in [":", "BaseModel", "dict", "Request"])
+
+
+def _split_functions_source(all_code: str) -> Dict[str, str]:
+    mapping: Dict[str, str] = {}
+    try:
+        tree = ast.parse(all_code)
+    except SyntaxError:
+        return mapping
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef):
+            try:
+                start = node.lineno - 1
+                end = node.end_lineno  # type: ignore[attr-defined]
+                lines = all_code.splitlines()
+                mapping[node.name] = "\n".join(lines[start:end])
+            except Exception:
+                pass
+    return mapping
+
+
+def _classify_crud(endpoints: List[Dict[str, Any]]) -> Dict[str, bool]:
+    """Clasifica presencia de operaciones CRUD basándose en método + path."""
+    presence = {
         "create": False,
-        "read": False,
-        "read_all": False,
+        "read": False,        # GET individual
+        "read_all": False,    # GET colección
         "update": False,
         "delete": False
     }
-    
-    # Patrones comunes de endpoints CRUD
-    crud_patterns = {
-        "create": ["items", "item", "create", "add"],
-        "read": ["items/{", "item/{", "get/"],
-        "read_all": ["items", "all", "list"],
-        "update": ["items/{", "item/{", "update/", "put/"],
-        "delete": ["items/{", "item/{", "delete/", "remove/"]
-    }
-    
-    # Analizar los resultados de endpoints
-    for endpoint_path, result in endpoint_results.items():
-        if isinstance(result, dict) and result.get("status") in [200, 201, 204]:
-            endpoint_lower = endpoint_path.lower()
-            
-            # Verificar patrones para cada operación CRUD
-            for operation, patterns in crud_patterns.items():
-                if any(pattern in endpoint_lower for pattern in patterns):
-                    crud_endpoints[operation] = True
-    
-    return crud_endpoints
+    for ep in endpoints:
+        path = ep.get("path", "").lower()
+        method = ep.get("method")
+        params = ep.get("path_params", [])
+        if method == "POST":
+            presence["create"] = True
+        if method == "GET" and params:
+            presence["read"] = True
+        if method == "GET" and not params:
+            presence["read_all"] = True
+        if method in {"PUT", "PATCH"} and params:
+            presence["update"] = True
+        if method == "DELETE" and params:
+            presence["delete"] = True
+    return presence
 
 
-def _calculate_crud_score(crud_endpoints: Dict[str, bool], crud_analysis: Dict[str, Any]) -> float:
-    """
-    Calcula el score total de las operaciones CRUD
-    """
-    # Score por endpoints funcionando (60% del total)
-    endpoint_score = sum(crud_endpoints.values()) / len(crud_endpoints) * 60
-    
-    # Score por implementación en código (40% del total)
-    code_indicators = [
-        crud_analysis.get("has_post_decorator", False),
-        crud_analysis.get("has_get_decorator", False),
-        crud_analysis.get("has_put_decorator", False) or crud_analysis.get("has_delete_decorator", False),
-        crud_analysis.get("has_data_storage", False),
-        crud_analysis.get("has_item_model", False),
-        crud_analysis.get("uses_path_parameters", False),
-        crud_analysis.get("uses_request_body", False)
+def _calculate_crud_score(presence: Dict[str, bool], indicators: Dict[str, bool]) -> float:
+    # 60% endpoints + 40% indicadores de implementación
+    endpoint_score = sum(presence.values()) / 5 * 60
+    impl_flags = [
+        indicators.get("has_post", False),
+        indicators.get("has_get", False),
+        indicators.get("has_put_or_patch", False),
+        indicators.get("has_delete", False),
+        indicators.get("has_storage", False),
+        indicators.get("has_model", False),
+        indicators.get("has_request_body", False),
     ]
-    
-    code_score = sum(code_indicators) / len(code_indicators) * 40
-    
-    return endpoint_score + code_score
+    impl_score = sum(impl_flags) / len(impl_flags) * 40
+    return endpoint_score + impl_score
+
+
+def check_crud_operations(repo_path: str) -> Dict[str, Any]:
+    """Verifica operaciones CRUD mediante análisis estático (sin ejecutar código del estudiante)."""
+    repo_root = Path(repo_path)
+    if not repo_root.exists():
+        return {"error": "Ruta no encontrada", "crud_score": 0}
+
+    contents = _collect_code(repo_root)
+    all_code = "\n".join(contents.values())
+    endpoints = _parse_endpoints(all_code)
+    functions_src = _split_functions_source(all_code)
+
+    presence = _classify_crud(endpoints)
+
+    # Indicadores de implementación
+    indicators = {
+        "has_post": any(ep["method"] == "POST" for ep in endpoints),
+        "has_get": any(ep["method"] == "GET" for ep in endpoints),
+        "has_put_or_patch": any(ep["method"] in {"PUT", "PATCH"} for ep in endpoints),
+        "has_delete": any(ep["method"] == "DELETE" for ep in endpoints),
+        "has_storage": _detect_storage_patterns(all_code),
+        "has_model": _detect_model_usage(all_code),
+        "has_request_body": any(_has_request_body_indicator(src) for src in functions_src.values()),
+    }
+
+    crud_score = _calculate_crud_score(presence, indicators)
+
+    return {
+        "analysis_method": "static",
+        "endpoints_detected": endpoints,
+        "presence": presence,
+        "indicators": indicators,
+        "create_operation": presence["create"],
+        "read_operation": presence["read"],
+        "read_all_operation": presence["read_all"],
+        "update_operation": presence["update"],
+        "delete_operation": presence["delete"],
+        "crud_score": round(crud_score, 2)
+    }
 
 
 def check_specific_crud_operation(repo_path: str, operation: str) -> Dict[str, Any]:
-    """
-    Verifica una operación CRUD específica
-    
-    Args:
-        repo_path: Ruta al repositorio
-        operation: Operación a verificar ('create', 'read', 'update', 'delete')
-    """
-    crud_result = check_crud_operations(repo_path)
-    
-    operation_map = {
+    result = check_crud_operations(repo_path)
+    mapping = {
         "create": "create_operation",
-        "read": "read_operation", 
+        "read": "read_operation",
+        "read_all": "read_all_operation",
         "update": "update_operation",
         "delete": "delete_operation"
     }
-    
-    if operation not in operation_map:
-        return {"error": f"Unknown operation: {operation}"}
-    
-    operation_key = operation_map[operation]
-    working = crud_result.get(operation_key, False)
-    
-    suggestions = {
-        "create": "Implementa un endpoint POST para crear nuevos items",
-        "read": "Implementa un endpoint GET para leer items específicos",
-        "update": "Implementa un endpoint PUT para actualizar items existentes", 
-        "delete": "Implementa un endpoint DELETE para eliminar items"
-    }
-    
+    key = mapping.get(operation)
+    if not key:
+        return {"error": f"Operación desconocida: {operation}"}
     return {
         "operation": operation,
-        "working": working,
-        "suggestion": suggestions.get(operation, ""),
-        "details": crud_result.get("crud_endpoints", {}).get(operation, False)
+        "implemented": bool(result.get(key)),
+        "crud_score": result.get("crud_score")
     }
 
 
 def get_crud_recommendations(repo_path: str) -> List[str]:
-    """
-    Genera recomendaciones específicas para mejorar las operaciones CRUD
-    """
-    crud_result = check_crud_operations(repo_path)
-    recommendations = []
-    
-    if not crud_result.get("app_importable", False):
-        recommendations.append("Asegúrate de que la aplicación FastAPI sea importable y ejecutable")
-        return recommendations
-    
-    # Verificar cada operación CRUD
-    operations = {
-        "create_operation": "Implementa un endpoint POST para crear items (ej: @app.post('/items/'))",
-        "read_operation": "Implementa un endpoint GET para leer un item específico (ej: @app.get('/items/{item_id}'))",
-        "read_all_operation": "Implementa un endpoint GET para listar todos los items (ej: @app.get('/items/'))",
-        "update_operation": "Implementa un endpoint PUT para actualizar items (ej: @app.put('/items/{item_id}'))",
-        "delete_operation": "Implementa un endpoint DELETE para eliminar items (ej: @app.delete('/items/{item_id}'))"
-    }
-    
-    for operation, recommendation in operations.items():
-        if not crud_result.get(operation, False):
-            recommendations.append(f"• {recommendation}")
-    
-    # Recomendaciones adicionales basadas en el análisis de código
-    crud_analysis = crud_result.get("crud_in_code", {})
-    
-    if not crud_analysis.get("has_item_model", False):
-        recommendations.append("• Define un modelo Pydantic para representar tus items")
-    
-    if not crud_analysis.get("has_data_storage", False):
-        recommendations.append("• Crea una estructura de datos en memoria para almacenar los items")
-    
-    if not crud_analysis.get("uses_path_parameters", False):
-        recommendations.append("• Usa parámetros de path para identificar items específicos")
-    
-    if not crud_analysis.get("uses_request_body", False):
-        recommendations.append("• Usa el cuerpo de la petición para recibir datos en POST/PUT")
-    
-    return recommendations
+    result = check_crud_operations(repo_path)
+    rec: List[str] = []
+    if result.get("error"):
+        return ["No se pudo analizar CRUD: " + str(result.get("error"))]
+    if not result.get("create_operation"):
+        rec.append("Implementa un endpoint POST (crear recurso).")
+    if not result.get("read_all_operation"):
+        rec.append("Implementa GET colección (listar recursos).")
+    if not result.get("read_operation"):
+        rec.append("Implementa GET /recurso/{id} (obtener recurso individual).")
+    if not result.get("update_operation"):
+        rec.append("Implementa PUT/PATCH /recurso/{id} (actualizar).")
+    if not result.get("delete_operation"):
+        rec.append("Implementa DELETE /recurso/{id} (eliminar).")
+    if not result.get("indicators", {}).get("has_model"):
+        rec.append("Define modelos Pydantic (BaseModel) para validar datos.")
+    if not result.get("indicators", {}).get("has_storage"):
+        rec.append("Agrega una estructura de almacenamiento en memoria (lista o dict).")
+    return rec

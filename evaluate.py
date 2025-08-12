@@ -37,6 +37,8 @@ def load_week_evaluator(week_number: int, student_repo_path: str) -> Optional[Ba
         # Importar dinámicamente el módulo del evaluador
         import importlib.util
         spec = importlib.util.spec_from_file_location(f"week{week_number:02d}_evaluator", evaluator_file)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Could not load spec for {evaluator_file}")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         
@@ -50,7 +52,9 @@ def load_week_evaluator(week_number: int, student_repo_path: str) -> Optional[Ba
                 if (isinstance(attr, type) and 
                     issubclass(attr, BaseEvaluator) and 
                     attr != BaseEvaluator):
-                    return attr(student_repo_path)
+                    # Los evaluadores específicos solo necesitan student_repo_path
+                    # porque internamente llaman a super().__init__(week_number, student_repo_path)
+                    return attr(student_repo_path)  # type: ignore
         
         print(f"❌ No se encontró evaluador válido en {evaluator_file}")
         return None
@@ -136,17 +140,16 @@ def _generate_summary_report(results: Dict[str, Any], week_number: int) -> Dict[
 
 def _generate_markdown_report(results: Dict[str, Any], week_number: int) -> Dict[str, Any]:
     """Genera un reporte en formato markdown"""
-    generator = ReportGenerator()
-    
-    # Usar el generador de reportes del core
-    markdown_report = generator.generate_markdown_report(results)
+    # Usar el reporte que ya está en los resultados
+    report = results.get("report", f"# Week {week_number} Evaluation Results\n\nNo report available.")
     
     return {
         "success": True,
         "week": week_number,
         "format": "markdown",
-        "report": markdown_report,
-        "results": results
+        "report": report,
+        "final_score": results.get("final_score", 0),
+        "passed": results.get("passed", False)
     }
 
 
