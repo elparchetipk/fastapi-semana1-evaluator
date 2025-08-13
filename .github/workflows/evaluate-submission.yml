@@ -4,6 +4,8 @@ name: 🤖 Evaluación Automática de Entrega
 on:
   issues:
     types: [opened, edited]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
@@ -14,8 +16,14 @@ jobs:
   evaluate:
     runs-on: ubuntu-latest
 
-    # Solo ejecutar en issues con labels de evaluación
-    if: contains(github.event.issue.labels.*.name, 'evaluacion')
+    # Ejecutar en issues con labels de evaluación O comentarios de re-evaluación
+    if: |
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'evaluacion')) ||
+      (github.event_name == 'issue_comment' && 
+       contains(github.event.issue.labels.*.name, 'evaluacion') &&
+       (contains(github.event.comment.body, '/evaluar') || 
+        contains(github.event.comment.body, '/re-evaluar') ||
+        contains(github.event.comment.body, '/check')))
 
     steps:
       - name: 🚀 Checkout repositorio evaluador
@@ -37,6 +45,16 @@ jobs:
           # Extraer URL del repositorio del cuerpo del issue
           REPO_URL=$(echo "${{ github.event.issue.body }}" | \
             grep -oE 'https://github\.com/[^][:space:]]*' | head -1)
+
+          # Si estamos procesando un comentario, intentar extraer URL del comentario también
+          if [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            COMMENT_REPO_URL=$(echo "${{ github.event.comment.body }}" | \
+              grep -oE 'https://github\.com/[^][:space:]]*' | head -1)
+            if [[ -n "$COMMENT_REPO_URL" ]]; then
+              REPO_URL="$COMMENT_REPO_URL"
+            fi
+          fi
+
           echo "repo_url=$REPO_URL" >> $GITHUB_OUTPUT
 
           # Determinar la semana basándose en los labels
@@ -90,7 +108,12 @@ jobs:
               1. Verifica que tu repositorio sea **público**
               2. Asegúrate de que la URL esté correcta
               3. Revisa la estructura de archivos requerida
-              4. Edita este issue para re-evaluar
+              4. **Para re-evaluar**: Edita este issue o comenta \`/evaluar\`
+              
+              ### 🔄 Métodos de Re-evaluación:
+              - **Editar el issue**: Modifica la descripción y guarda
+              - **Comentar**: Escribe \`/evaluar\`, \`/re-evaluar\` o \`/check\`
+              - **Nueva URL**: Incluye una nueva URL en el comentario si cambió
               `;
             }
 
@@ -105,12 +128,33 @@ jobs:
               labelsToAdd.push('revisar');
             }
 
+            // Determinar el método de activación para el footer
+            const triggerMethod = '${{ github.event_name }}' === 'issue_comment' ? 
+              'comentario de re-evaluación' : 
+              '${{ github.event.action }}' === 'edited' ? 'edición del issue' : 'creación del issue';
+
+            // Agregar footer con información de re-evaluación
+            const footerInfo = `
+
+            ---
+
+            ### 🔄 Re-evaluación Disponible
+
+            **Métodos para volver a evaluar:**
+            - ✏️ **Editar este issue**: Modifica la descripción y guarda los cambios
+            - 💬 **Comentar**: Escribe \`/evaluar\`, \`/re-evaluar\` o \`/check\`
+            - 🔗 **Nueva URL**: Incluye una nueva URL del repositorio en un comentario
+
+            _Activado por: ${triggerMethod}_
+
+            > 🤖 Evaluación automática generada el ${new Date().toISOString().slice(0, 19).replace('T', ' ')}`;
+
             // Comentar en el issue
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: evaluationResult
+              body: evaluationResult + footerInfo
             });
 
             // Actualizar etiquetas
