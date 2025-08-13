@@ -39,4 +39,4 @@
 • Implementar función para endpoint raíz con decorador @app.get('/')
 
 ---
-> 🤖 Evaluación automática generada el 2025-08-13 12:41:24
+> 🤖 Evaluación automática generada el 2025-08-13 13:05:25
