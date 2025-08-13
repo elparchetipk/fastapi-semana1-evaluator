@@ -1,0 +1,120 @@
+---
+name: 🤖 Evaluación Automática (Test Mode)
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    # Modo test: solo verificar comando /evaluar
+    if: |
+      github.event_name == 'issue_comment' && 
+      (contains(github.event.comment.body, '/evaluar') || 
+       contains(github.event.comment.body, '/test-evaluar'))
+
+    steps:
+      - name: 🚀 Checkout repositorio evaluador
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🔍 Extraer información del issue
+        id: extract_info
+        run: |
+          echo "=== DEBUGGING WORKFLOW ==="
+          echo "Event name: ${{ github.event_name }}"
+          echo "Issue labels: ${{ toJson(github.event.issue.labels) }}"
+          echo "Comment body: ${{ github.event.comment.body }}"
+
+          # Extraer URL del repositorio del cuerpo del issue
+          REPO_URL=$(echo "${{ github.event.issue.body }}" | \
+            grep -oE 'https://github\.com/[^][:space:]]*' | head -1)
+
+          # Si no hay URL en el issue, intentar del comentario
+          if [[ -z "$REPO_URL" ]]; then
+            REPO_URL=$(echo "${{ github.event.comment.body }}" | \
+              grep -oE 'https://github\.com/[^][:space:]]*' | head -1)
+          fi
+
+          # URL por defecto para testing
+          if [[ -z "$REPO_URL" ]]; then
+            REPO_URL="https://github.com/leorodrivi/2766065-jjuradoq-fastapi-semana1"
+          fi
+
+          echo "repo_url=$REPO_URL" >> $GITHUB_OUTPUT
+          echo "Found repository URL: $REPO_URL"
+
+          # Determinar la semana - por defecto 1 para testing
+          WEEK="1"
+          if [[ "${{ contains(github.event.issue.labels.*.name, 'semana2') }}" == "true" ]]; then
+            WEEK="2"
+          elif [[ "${{ contains(github.event.issue.labels.*.name, 'semana3') }}" == "true" ]]; then
+            WEEK="3"
+          elif [[ "${{ contains(github.event.issue.labels.*.name, 'semana4') }}" == "true" ]]; then
+            WEEK="4"
+          fi
+
+          echo "week=$WEEK" >> $GITHUB_OUTPUT
+          echo "Detected week: $WEEK"
+
+      - name: 🧪 Ejecutar evaluación automática
+        id: evaluate
+        run: |
+          echo "Ejecutando evaluación..."
+          echo "Repo: ${{ steps.extract_info.outputs.repo_url }}"
+          echo "Week: ${{ steps.extract_info.outputs.week }}"
+
+          python evaluator/run.py \
+            --repo-url "${{ steps.extract_info.outputs.repo_url }}" \
+            --week "${{ steps.extract_info.outputs.week }}" \
+            --format github
+        continue-on-error: true
+
+      - name: 📝 Comentar resultados en el issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Leer el resultado de la evaluación
+            let evaluationResult = '';
+            try {
+              evaluationResult = fs.readFileSync('evaluation_result.md', 'utf8');
+            } catch (error) {
+              evaluationResult = `
+              ## ❌ Error en la Evaluación
+              
+              No se pudo completar la evaluación automática. Posibles causas:
+              - El repositorio no existe o no es público
+              - El repositorio no tiene la estructura esperada
+              - Error en el sistema de evaluación
+              
+              **Error details:** ${error.message}
+              
+              **Repo URL:** ${{ steps.extract_info.outputs.repo_url }}
+              **Week:** ${{ steps.extract_info.outputs.week }}
+              `;
+            }
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: evaluationResult
+            });
