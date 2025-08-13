@@ -20,7 +20,7 @@ mi-proyecto-fastapi/
 ### 3. **Esperar respuesta automática** ⏱️
 
 - **Tiempo**: 2-3 minutos
-- **Dónde**: Como comentario EN EL MISMO ISSUE que crearon (en este repositorio evaluador)
+- **Dónde**: Comentario en el mismo issue
 - **Formato**: Feedback detallado con puntaje
 
 ---

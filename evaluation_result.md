@@ -1,4 +1,4 @@
-✅ **APROBADO** — Puntaje: **100/100**
+🕐 **PENDIENTE** — Puntaje: **19/100**
 
 ## Week 1: Hello World API
 
@@ -6,11 +6,11 @@
 
 | Categoría | Puntaje | Estado |
 |-----------|---------|---------|
-| Setup | 25/25 | ✅ |
-| Functionality | 40/40 | ✅ |
-| Documentation | 20/20 | ✅ |
-| Deliverables | 10/10 | ✅ |
-| Understanding | 5/5 | ✅ |
+| Setup | 13/25 | ⚠️ |
+| Functionality | 1/40 | ⚠️ |
+| Documentation | 0/20 | ⚠️ |
+| Deliverables | 5/10 | ⚠️ |
+| Understanding | 0/5 | ⚠️ |
 
 ### 🎯 Umbral de aprobación: 75%
 
@@ -20,23 +20,22 @@
 2. Archivo main.py presente y accesible
 3. Archivo requirements.txt presente
 4. Documentación README.md presente
-5. FastAPI correctamente instalado y configurado
-6. Uvicorn disponible para ejecutar la aplicación
 
-🎉 **¡Excelente trabajo!** No hay mejoras críticas necesarias.
+🔧 **Lo que se debe mejorar:**
+1. Agregar 'fastapi' a requirements.txt
+2. Agregar 'uvicorn' a requirements.txt para ejecutar la app
 
 ✅ **Aspectos de Week 1 implementados correctamente:**
 • Estructura de archivos básica completa (main.py, requirements.txt, README.md)
-• Dependencias FastAPI correctamente especificadas en requirements.txt
-• FastAPI correctamente importado en main.py
-• Instancia de aplicación FastAPI creada correctamente
-• Endpoint GET / funcionando y retornando JSON válido
-• Documentación automática FastAPI accesible en /docs
-• README con comandos de instalación y ejecución
-• Código bien estructurado y documentado
+• Estructura de código básica aceptable
 
 🔧 **Mejoras específicas de Week 1:**
+• Importar FastAPI: agregar 'from fastapi import FastAPI' en main.py
+• Crear instancia de aplicación: agregar 'app = FastAPI()' en main.py
 • Implementar función para endpoint raíz con decorador @app.get('/')
+• Asegurar que el endpoint GET / retorne JSON y responda con status 200
+• Verificar que /docs sea accesible (indica configuración correcta de FastAPI)
+• Agregar comandos de instalación (pip install -r requirements.txt) y ejecución (uvicorn main:app --reload) al README
 
 ---
-> 🤖 Evaluación automática generada el 2025-08-13 13:05:25
+> 🤖 Evaluación automática generada el 2025-08-13 13:23:46

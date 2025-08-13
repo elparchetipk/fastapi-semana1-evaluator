@@ -2,12 +2,6 @@
 
 ## 🎯 ¿Cómo funciona el proceso de evaluación?
 
-### 📍 **IMPORTANTE: ¿Dónde aparece tu resultado?**
-
-Tu evaluación aparecerá como **un comentario automático EN EL MISMO ISSUE** que crees en este repositorio.
-
-**NO** aparece en tu repositorio personal, sino **AQUÍ** en el repositorio evaluador.
-
 ### 1. **Subir tu proyecto a GitHub** 🌐
 
 - Tu repositorio **DEBE ser público**
@@ -30,8 +24,7 @@ Tu evaluación aparecerá como **un comentario automático EN EL MISMO ISSUE** q
 
 - **Tiempo de respuesta**: 2-3 minutos
 - El sistema evalúa automáticamente tu repositorio
-- **Recibes un comentario detallado EN EL MISMO ISSUE que creaste** (en este repositorio evaluador)
-- El issue se actualiza automáticamente con tu puntaje y feedback
+- Recibes un comentario detallado en tu issue
 
 ---
 
@@ -320,48 +313,3 @@ http://localhost:8000/docs
 > 💡 **Recuerda**: Este evaluador es una herramienta de aprendizaje. Su objetivo es ayudarte a interiorizar los conceptos fundamentales de FastAPI mediante feedback inmediato y criterios claros.
 
 **¡Éxitos con tu proyecto! 🚀**
-
----
-
-## 🖼️ **Visual: ¿Dónde aparece exactamente tu resultado?**
-
-### **Paso a paso con capturas simuladas:**
-
-**1. Creas el issue aquí:**
-```
-📍 Ubicación: github.com/[evaluador]/fastapi-semana1-evaluator/issues
-🎯 Tu action: Click "New Issue" → Selecciona template → Completa datos
-```
-
-**2. Tu issue se ve así:**
-```
-[SEMANA 1] [Juan Pérez] - Hello World API
-Estado: 🟡 pendiente
-
-Información del Estudiante:
-Nombre completo: Juan Pérez
-URL del repositorio: https://github.com/juan-perez/mi-fastapi-proyecto
-```
-
-**3. En 2-3 minutos aparece un comentario automático:**
-```
-🤖 fastapi-evaluator-bot commented:
-
-✅ **APROBADO** — Puntaje: 85/100
-
-[... tu evaluación detallada aquí ...]
-```
-
-**4. Tu issue se actualiza automáticamente:**
-```
-[SEMANA 1] [Juan Pérez] - Hello World API  
-Estado: ✅ aprobado
-```
-
-### 🚨 **IMPORTANTE:** 
-- **NO** busques respuesta en TU repositorio
-- **SÍ** revisa el issue en ESTE repositorio evaluador
-- **NO** se envían emails
-- **SÍ** puedes re-evaluar editando el mismo issue
-
----
