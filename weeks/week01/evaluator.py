@@ -263,56 +263,81 @@ class Week01Evaluator(BaseEvaluator):
     
     def get_week_specific_feedback(self, results: Dict[str, Any]) -> List[str]:
         """
-        Genera feedback específico para Week 1 usando los nuevos resultados
+        Genera feedback específico para Week 1 - Hello World API
+        Incluye tanto aspectos positivos como mejoras necesarias
         """
         feedback = []
+        successful_aspects = []
         
-        # Feedback sobre estructura
+        # Analizar estructura del proyecto
         structure = results.get("project_structure", {})
-        if not structure.get("all_files_present", False):
-            missing_files = [
-                file for file, present in structure.get("required_files", {}).items()
-                if not present
-            ]
-            feedback.append(f"• Faltan archivos requeridos: {', '.join(missing_files)}")
+        if structure.get("all_files_present", False):
+            successful_aspects.append("Estructura de archivos básica completa (main.py, requirements.txt, README.md)")
         
-        if not structure.get("all_packages_present", False):
-            missing_packages = [
-                pkg for pkg, present in structure.get("required_packages", {}).items()
-                if not present
-            ]
-            feedback.append(f"• Faltan dependencias en requirements.txt: {', '.join(missing_packages)}")
+        if structure.get("all_packages_present", False):
+            successful_aspects.append("Dependencias FastAPI correctamente especificadas en requirements.txt")
         
-        # Feedback sobre app FastAPI
+        # Analizar configuración de FastAPI
         app_setup = results.get("fastapi_app", {})
-        if not app_setup.get("has_fastapi_import", False):
-            feedback.append("• Agrega 'from fastapi import FastAPI' en main.py")
+        if app_setup.get("has_fastapi_import", False):
+            successful_aspects.append("FastAPI correctamente importado en main.py")
+        else:
+            feedback.append("Importar FastAPI: agregar 'from fastapi import FastAPI' en main.py")
         
-        if not app_setup.get("has_app_instance", False):
-            feedback.append("• Crea la instancia de la aplicación con 'app = FastAPI()' en main.py")
+        if app_setup.get("has_app_instance", False):
+            successful_aspects.append("Instancia de aplicación FastAPI creada correctamente")
+        else:
+            feedback.append("Crear instancia de aplicación: agregar 'app = FastAPI()' en main.py")
         
-        if not app_setup.get("has_root_endpoint_function", False):
-            feedback.append("• Implementa una función para el endpoint raíz @app.get('/')")
+        if app_setup.get("has_root_endpoint_function", False):
+            successful_aspects.append("Función de endpoint raíz definida")
+        else:
+            feedback.append("Implementar función para endpoint raíz con decorador @app.get('/')")
         
-        # Feedback sobre endpoints
+        # Analizar endpoints
         endpoints = results.get("endpoints", {})
-        if not endpoints.get("root_working", False):
-            feedback.append("• El endpoint GET / debe retornar JSON y responder con status 200")
+        if endpoints.get("root_working", False):
+            successful_aspects.append("Endpoint GET / funcionando y retornando JSON válido")
+        else:
+            feedback.append("Asegurar que el endpoint GET / retorne JSON y responda con status 200")
         
-        if not endpoints.get("docs_accessible", False):
-            feedback.append("• Asegúrate de que /docs sea accesible (indica que FastAPI está bien configurado)")
+        if endpoints.get("docs_accessible", False):
+            successful_aspects.append("Documentación automática FastAPI accesible en /docs")
+        else:
+            feedback.append("Verificar que /docs sea accesible (indica configuración correcta de FastAPI)")
         
-        # Feedback sobre documentación
+        # Analizar documentación
         documentation = results.get("documentation", {})
-        if not documentation.get("has_setup_commands", False):
-            feedback.append("• Agrega comandos de instalación y ejecución al README.md")
+        if documentation.get("has_setup_commands", False):
+            successful_aspects.append("README con comandos de instalación y ejecución")
+        else:
+            feedback.append("Agregar comandos de instalación (pip install -r requirements.txt) y ejecución (uvicorn main:app --reload) al README")
         
-        # Feedback sobre calidad
+        # Analizar calidad general
         code_quality = results.get("code_quality", {})
-        if code_quality.get("overall_quality") == "needs_improvement":
-            feedback.append("• Mejora la documentación del README y verifica la sintaxis del código")
+        quality_level = code_quality.get("overall_quality", "needs_improvement")
+        if quality_level in ["excellent", "good"]:
+            successful_aspects.append("Código bien estructurado y documentado")
+        elif quality_level == "acceptable":
+            successful_aspects.append("Estructura de código básica aceptable")
+        else:
+            feedback.append("Mejorar documentación del proyecto y verificar sintaxis del código")
         
-        return feedback
+        # Combinar aspectos exitosos y mejoras
+        combined_feedback = []
+        
+        if successful_aspects:
+            combined_feedback.append("✅ **Aspectos de Week 1 implementados correctamente:**")
+            for aspect in successful_aspects:
+                combined_feedback.append(f"• {aspect}")
+            combined_feedback.append("")  # Línea en blanco
+        
+        if feedback:
+            combined_feedback.append("🔧 **Mejoras específicas de Week 1:**")
+            for improvement in feedback:
+                combined_feedback.append(f"• {improvement}")
+        
+        return combined_feedback
     
     def get_week01_summary(self) -> Dict[str, Any]:
         """

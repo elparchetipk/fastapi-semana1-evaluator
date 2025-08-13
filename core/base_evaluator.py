@@ -526,37 +526,84 @@ class BaseEvaluator(ABC):
     def _analyze_results_for_feedback(self, successful_items: List[str], improvement_items: List[str]) -> None:
         """Analiza los resultados para categorizar elementos exitosos y mejoras necesarias"""
         
+        # Detectar estructura de archivos (diferentes evaluadores usan diferentes claves)
+        file_structure = None
+        dependencies = None
+        syntax_validation = None
+        documentation = None
+        
+        # Week 1 usa project_structure
+        if "project_structure" in self.results:
+            project_struct = self.results["project_structure"]
+            if isinstance(project_struct, dict):
+                file_structure = project_struct.get("required_files", {})
+                dependencies = project_struct.get("required_packages", {})
+                syntax_info = project_struct.get("main_syntax", {})
+                if syntax_info and syntax_info.get("syntax_valid", False):
+                    successful_items.append("Sintaxis correcta en main.py")
+        
+        # Week 2 usa structure y requirements
+        elif "structure" in self.results and "requirements" in self.results:
+            struct = self.results["structure"]
+            if isinstance(struct, dict):
+                files = struct.get("files", {})
+                # Convertir a formato estándar
+                file_structure = {}
+                if files.get("main_py", False):
+                    file_structure["main.py"] = True
+                if files.get("requirements_txt", False):
+                    file_structure["requirements.txt"] = True
+                if files.get("readme_md", False):
+                    file_structure["README.md"] = True
+                    
+            dependencies = self.results.get("requirements", {})
+        
+        # Week 3 usa file_structure, dependencies, etc.
+        else:
+            file_structure = self.results.get("file_structure", {})
+            dependencies = self.results.get("dependencies", {})
+            syntax_validation = self.results.get("syntax_validation", {})
+            documentation = self.results.get("documentation", {})
+        
         # Analizar estructura de archivos
-        file_structure = self.results.get("file_structure", {})
-        if file_structure.get("main.py", False):
-            successful_items.append("Archivo main.py presente y accesible")
-        else:
-            improvement_items.append("Crear archivo main.py en la raíz del proyecto")
-            
-        if file_structure.get("requirements.txt", False):
-            successful_items.append("Archivo requirements.txt presente")
-        else:
-            improvement_items.append("Crear archivo requirements.txt con dependencias")
-            
-        if file_structure.get("README.md", False):
-            successful_items.append("Documentación README.md presente")
-        else:
-            improvement_items.append("Crear archivo README.md con documentación del proyecto")
+        if file_structure:
+            if isinstance(file_structure, dict):
+                for file_name, exists in file_structure.items():
+                    if exists:
+                        if file_name == "main.py":
+                            successful_items.append("Archivo main.py presente y accesible")
+                        elif file_name == "requirements.txt":
+                            successful_items.append("Archivo requirements.txt presente")
+                        elif file_name == "README.md":
+                            successful_items.append("Documentación README.md presente")
+                    else:
+                        if file_name == "main.py":
+                            improvement_items.append("Crear archivo main.py en la raíz del proyecto")
+                        elif file_name == "requirements.txt":
+                            improvement_items.append("Crear archivo requirements.txt con dependencias")
+                        elif file_name == "README.md":
+                            improvement_items.append("Crear archivo README.md con documentación del proyecto")
         
         # Analizar dependencias
-        dependencies = self.results.get("dependencies", {})
-        if dependencies.get("fastapi", False):
-            successful_items.append("FastAPI correctamente instalado y configurado")
-        else:
-            improvement_items.append("Agregar 'fastapi' a requirements.txt")
-            
-        if dependencies.get("uvicorn", False):
-            successful_items.append("Uvicorn disponible para ejecutar la aplicación")
-        else:
-            improvement_items.append("Agregar 'uvicorn' a requirements.txt para ejecutar la app")
+        if dependencies:
+            if isinstance(dependencies, dict):
+                for package, exists in dependencies.items():
+                    if exists:
+                        if package == "fastapi":
+                            successful_items.append("FastAPI correctamente instalado y configurado")
+                        elif package == "uvicorn":
+                            successful_items.append("Uvicorn disponible para ejecutar la aplicación")
+                        elif package == "pydantic":
+                            successful_items.append("Pydantic disponible para validación de datos")
+                    else:
+                        if package == "fastapi":
+                            improvement_items.append("Agregar 'fastapi' a requirements.txt")
+                        elif package == "uvicorn":
+                            improvement_items.append("Agregar 'uvicorn' a requirements.txt para ejecutar la app")
+                        elif package == "pydantic":
+                            improvement_items.append("Agregar 'pydantic' a requirements.txt para validación")
         
-        # Analizar sintaxis
-        syntax_validation = self.results.get("syntax_validation", {})
+        # Analizar sintaxis (Week 2 y 3)
         if syntax_validation:
             syntax_errors = []
             for file_name, syntax_result in syntax_validation.items():
@@ -569,9 +616,8 @@ class BaseEvaluator(ABC):
             if syntax_errors:
                 improvement_items.append(f"Corregir errores de sintaxis en: {', '.join(syntax_errors)}")
         
-        # Analizar documentación
-        documentation = self.results.get("documentation", {})
-        if isinstance(documentation, dict):
+        # Analizar documentación (Week 2 y 3)
+        if documentation and isinstance(documentation, dict):
             if documentation.get("score", 0) > 0:
                 successful_items.append("Documentación básica presente en README")
             if documentation.get("score", 0) >= 5:

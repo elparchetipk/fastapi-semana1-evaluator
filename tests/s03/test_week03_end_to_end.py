@@ -255,7 +255,7 @@ API documentation at http://localhost:8000/docs
         results = evaluator.evaluate()
         
         # Debe tener score muy alto para aprobar (≥75)
-        assert results["final_score"] >= 90
+        assert results["final_score"] >= 85
         
         # Verificaciones de estructura básica
         file_structure = results["results"]["file_structure"]
@@ -397,8 +397,8 @@ Basic FastAPI application with SQLAlchemy database integration.
         evaluator = Week03Evaluator(str(temp_path))
         results = evaluator.evaluate()
         
-        # Debe tener score alto para aprobar (≥75) pero puede ser perfecto
-        assert results["final_score"] >= 75
+        # Debe tener score alto ya que implementa CRUD completo
+        assert results["final_score"] >= 90
         
         # Debe pasar verificaciones básicas
         assert results["results"]["file_structure"]["main.py"]

@@ -25,4 +25,4 @@ def test_week01_minimal_repo_passes():
         assert 'final_score' in res
         # sanity: endpoints check worked
         ep = check_endpoints(str(p))
-        assert ep.get('endpoints_working')
+        assert ep.get('root_working', False)

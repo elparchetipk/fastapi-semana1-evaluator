@@ -2,7 +2,7 @@ week_info:
   number: 1
   title: 'Hello World API'
   description: 'Fundamentos de FastAPI - Creación de API básica'
-  passing_threshold: 70
+  passing_threshold: 75
   repository_template: 'ficha-apellido-nombre-fastapi-semana1'
 
 learning_objectives:

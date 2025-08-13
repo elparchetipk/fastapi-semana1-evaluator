@@ -2,7 +2,7 @@ week_info:
   number: 2
   title: 'CRUD Básico con FastAPI'
   description: 'Operaciones Create, Read, Update, Delete con datos en memoria'
-  passing_threshold: 70
+  passing_threshold: 75
   repository_pattern: '*fastapi-semana2*'
 
 categories:

@@ -99,37 +99,88 @@ class Week02Evaluator(BaseEvaluator):
         return indicators
 
     def get_week_specific_feedback(self, results: Dict[str, Any]) -> List[str]:  # type: ignore[override]
-        fb: List[str] = []
-        structure = results.get("structure", {})
-        files = structure.get("files", {})
-        if not files.get("main_py"):
-            fb.append("• Crea el archivo main.py con la app FastAPI.")
-        reqs = results.get("requirements", {})
-        missing = [p for p in ["fastapi", "uvicorn", "pydantic"] if not reqs.get(p)]
-        if missing:
-            fb.append("• Agrega dependencias en requirements.txt: " + ", ".join(missing))
+        """
+        Genera feedback específico para Week 2 - CRUD Básico con FastAPI
+        Incluye tanto aspectos positivos como mejoras necesarias
+        """
+        feedback = []
+        successful_aspects = []
+        
+        # Analizar operaciones CRUD
         crud = results.get("crud_operations", {})
-        for key, msg in [
-            ("create_operation", "• Falta endpoint POST (crear recurso)."),
-            ("read_all_operation", "• Falta GET colección (listar recursos)."),
-            ("read_operation", "• Falta GET detalle /{id}."),
-            ("update_operation", "• Falta PUT/PATCH actualización."),
-            ("delete_operation", "• Falta DELETE /{id}.")
-        ]:
-            if not crud.get(key):
-                fb.append(msg)
+        crud_operations = [
+            ("create_operation", "CREATE", "endpoint POST para crear recursos"),
+            ("read_all_operation", "READ ALL", "endpoint GET para listar todos los recursos"),
+            ("read_operation", "READ ONE", "endpoint GET para obtener un recurso específico"),
+            ("update_operation", "UPDATE", "endpoint PUT/PATCH para actualizar recursos"),
+            ("delete_operation", "DELETE", "endpoint DELETE para eliminar recursos")
+        ]
+        
+        successful_crud = []
+        missing_crud = []
+        for operation, label, description in crud_operations:
+            if crud.get(operation, False):
+                successful_crud.append(f"Operación {label}")
+            else:
+                missing_crud.append(f"Implementar {description}")
+        
+        if successful_crud:
+            successful_aspects.append(f"Operaciones CRUD implementadas: {', '.join(successful_crud)}")
+        
+        if missing_crud:
+            feedback.extend(missing_crud)
+        
+        # Analizar modelos Pydantic
         models_res = results.get("models", {})
-        if not models_res.get("basemodel_used"):
-            fb.append("• Define modelos Pydantic (BaseModel).")
-        if not models_res.get("validation_used"):
-            fb.append("• Usa Field() u otras validaciones en los modelos.")
+        if models_res.get("basemodel_used", False):
+            successful_aspects.append("Modelos Pydantic (BaseModel) definidos correctamente")
+        else:
+            feedback.append("Definir modelos Pydantic usando BaseModel para validación de datos")
+        
+        if models_res.get("validation_used", False):
+            successful_aspects.append("Validaciones de campo implementadas en modelos")
+        else:
+            feedback.append("Agregar validaciones usando Field() u otras restricciones en los modelos")
+        
+        # Analizar validación de endpoints
         endpoints_res = results.get("endpoints", {})
-        if not endpoints_res.get("docs_accessible"):
-            fb.append("• Asegura la creación de la app FastAPI() para habilitar /docs.")
+        if endpoints_res.get("docs_accessible", False):
+            successful_aspects.append("Documentación automática FastAPI (/docs) accesible")
+        else:
+            feedback.append("Asegurar que la aplicación FastAPI esté correctamente configurada para habilitar /docs")
+        
         val = endpoints_res.get("validation_in_endpoints", {})
-        if not val.get("has_error_handling"):
-            fb.append("• Maneja errores con HTTPException y códigos adecuados.")
-        return fb
+        if val.get("has_request_validation", False):
+            successful_aspects.append("Validación de request data implementada")
+        
+        if val.get("has_response_validation", False):
+            successful_aspects.append("Modelos de respuesta definidos")
+        
+        if val.get("has_error_handling", False):
+            successful_aspects.append("Manejo de errores con HTTPException implementado")
+        else:
+            feedback.append("Implementar manejo de errores con HTTPException y códigos de estado apropiados")
+        
+        # Analizar validación de datos
+        data_validation = results.get("data_validation", {})
+        if data_validation.get("score", 0) > 0:
+            successful_aspects.append("Sistema de validación de datos funcionando")
+        
+        # Combinar aspectos exitosos y mejoras
+        combined_feedback = []
+        
+        if successful_aspects:
+            combined_feedback.append("✅ **Aspectos de Week 2 implementados correctamente:**")
+            for aspect in successful_aspects:
+                combined_feedback.append(f"• {aspect}")
+            combined_feedback.append("")  # Línea en blanco
+        
+        if feedback:
+            combined_feedback.append("🔧 **Mejoras específicas de Week 2:**")
+            for improvement in feedback:
+                combined_feedback.append(f"• {improvement}")
+        
+        return combined_feedback
 
     def _get_check_result(self, check_name: str) -> bool:  # type: ignore[override]
         r = self.results
