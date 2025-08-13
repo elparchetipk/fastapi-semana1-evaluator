@@ -5,9 +5,27 @@
 ### 1. **Subir tu proyecto a GitHub** 🌐
 
 - Tu repositorio **DEBE ser público**
+- **IMPORTANTE**: El nombre del repositorio debe seguir el formato específico:
+
+  ```
+  ficha-apellido-nombre-fastapi-semanaX
+  ```
+
+  **Ejemplos de nombres correctos:**
+
+  - `3147246-rodriguez-juan-fastapi-semana1`
+  - `2766065-perez-maria-fastapi-semana2`
+  - `1234567-garcia-carlos-fastapi-semana3`
+
+  **❌ Nombres incorrectos:**
+
+  - `mi-proyecto-fastapi` (falta ficha y formato)
+  - `juan-fastapi-semana1` (falta ficha)
+  - `fastapi-semana1` (falta ficha y nombre)
+
 - Estructura requerida:
   ```
-  tu-proyecto-fastapi/
+  ficha-apellido-nombre-fastapi-semanaX/
   ├── main.py
   ├── requirements.txt
   └── README.md
@@ -232,6 +250,13 @@ uvicorn[standard]>=0.15.0
 
 **Posibles causas:**
 
+- **📛 Nombre de repositorio incorrecto**: Debe seguir el formato `ficha-apellido-nombre-fastapi-semanaX`
+  ```
+  ✅ Correcto: 3147246-rodriguez-juan-fastapi-semana1
+  ❌ Incorrecto: mi-proyecto-fastapi
+  ❌ Incorrecto: juan-fastapi-proyecto
+  ❌ Incorrecto: fastapi-semana1
+  ```
 - Tu repositorio es privado → Hazlo público
 - URL incorrecta en el issue → Verifica la URL
 - Falta la etiqueta `evaluacion` → Contacta al instructor
@@ -298,6 +323,58 @@ uvicorn main:app --reload
 
 http://localhost:8000/docs
 ```
+
+---
+
+## 📝 Formato OBLIGATORIO del Nombre del Repositorio
+
+### **🚨 IMPORTANTE: Formato Específico Requerido**
+
+El nombre de tu repositorio **DEBE** seguir este formato exacto:
+
+```
+ficha-apellido-nombre-fastapi-semanaX
+```
+
+**Donde:**
+
+- `ficha` = Tu número de ficha/curso (ej: 3147246)
+- `apellido` = Tu apellido en minúsculas
+- `nombre` = Tu nombre en minúsculas
+- `semanaX` = El número de la semana (semana1, semana2, etc.)
+
+### **✅ Ejemplos CORRECTOS:**
+
+```
+3147246-rodriguez-juan-fastapi-semana1
+2766065-perez-maria-fastapi-semana2
+1234567-garcia-carlos-fastapi-semana3
+4567890-martinez-ana-fastapi-semana4
+```
+
+### **❌ Ejemplos INCORRECTOS:**
+
+```
+❌ mi-proyecto-fastapi              (no sigue el formato)
+❌ juan-fastapi-semana1             (falta ficha)
+❌ fastapi-semana1                  (falta ficha y nombre)
+❌ 3147246-fastapi-semana1          (falta apellido-nombre)
+❌ 3147246-Juan-Rodriguez-semana1   (mayúsculas, falta fastapi)
+```
+
+### **⚠️ Consecuencias de nombre incorrecto:**
+
+- El sistema automático **NO PODRÁ** encontrar tu repositorio
+- Tu entrega **NO SERÁ EVALUADA**
+- Recibirás error: "Repositorio no encontrado"
+
+### **🔧 ¿Cómo cambiar el nombre del repositorio?**
+
+1. Ve a tu repositorio en GitHub
+2. Haz clic en **Settings** (Configuración)
+3. Baja hasta **Repository name**
+4. Cambia al formato correcto
+5. Haz clic en **Rename**
 
 ---
 

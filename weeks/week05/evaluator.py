@@ -3,8 +3,8 @@ Evaluador específico para Semana 5 - Testing y Documentación
 Pruebas unitarias, integración y documentación avanzada
 """
 import sys
-import importlib.util
 import os
+import re
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -13,49 +13,61 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from core import BaseEvaluator, CommonChecks
 
-def import_check_module(module_name: str, file_path: str):
-    """Helper para importar módulos de checks"""
-    try:
-        spec = importlib.util.spec_from_file_location(module_name, file_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module
-    except Exception as e:
-        print(f"Warning: Could not import {module_name} check: {e}")
-        return None
-
 # Obtener directorio actual del evaluador
 current_dir = Path(__file__).parent
 
-# Importar checks específicos
+# Agregar checks al path
+checks_dir = current_dir / "checks"
+sys.path.insert(0, str(checks_dir))
+
+# Importar checks específicos directamente
+try:
+    from pytest_config import check_pytest_configuration
+except ImportError as e:
+    print(f"Warning: Could not import pytest_config check: {e}")
+    def check_pytest_configuration(repo_path): return {"error": "Module not available"}
 
 try:
-    test_coverage_module = import_check_module("test_coverage", str(current_dir / "checks" / "test_coverage.py"))
-    check_test_coverage = test_coverage_module.check_test_coverage if test_coverage_module else lambda repo_path: {"error": "Module not available"}
-except Exception as e:
-    print(f"Warning: Could not import test_coverage check: {e}")
-    def check_test_coverage(repo_path): return {"error": "Module not available"}
+    from test_dependencies import check_test_dependencies
+except ImportError as e:
+    print(f"Warning: Could not import test_dependencies check: {e}")
+    def check_test_dependencies(repo_path): return {"error": "Module not available"}
 
 try:
-    test_quality_module = import_check_module("test_quality", str(current_dir / "checks" / "test_quality.py"))
-    check_test_quality = test_quality_module.check_test_quality if test_quality_module else lambda repo_path: {"error": "Module not available"}
-except Exception as e:
-    print(f"Warning: Could not import test_quality check: {e}")
-    def check_test_quality(repo_path): return {"error": "Module not available"}
+    from test_structure import check_test_structure
+except ImportError as e:
+    print(f"Warning: Could not import test_structure check: {e}")
+    def check_test_structure(repo_path): return {"error": "Module not available"}
 
 try:
-    documentation_completeness_module = import_check_module("documentation_completeness", str(current_dir / "checks" / "documentation_completeness.py"))
-    check_documentation_completeness = documentation_completeness_module.check_documentation_completeness if documentation_completeness_module else lambda repo_path: {"error": "Module not available"}
-except Exception as e:
-    print(f"Warning: Could not import documentation_completeness check: {e}")
-    def check_documentation_completeness(repo_path): return {"error": "Module not available"}
+    from test_database_config import check_test_database_config
+except ImportError as e:
+    print(f"Warning: Could not import test_database_config check: {e}")
+    def check_test_database_config(repo_path): return {"error": "Module not available"}
 
 try:
-    api_docs_module = import_check_module("api_docs", str(current_dir / "checks" / "api_docs.py"))
-    check_api_docs = api_docs_module.check_api_docs if api_docs_module else lambda repo_path: {"error": "Module not available"}
-except Exception as e:
-    print(f"Warning: Could not import api_docs check: {e}")
-    def check_api_docs(repo_path): return {"error": "Module not available"}
+    from model_tests import check_model_tests
+except ImportError as e:
+    print(f"Warning: Could not import model_tests check: {e}")
+    def check_model_tests(repo_path): return {"error": "Module not available"}
+
+try:
+    from utility_function_tests import check_utility_function_tests
+except ImportError as e:
+    print(f"Warning: Could not import utility_function_tests check: {e}")
+    def check_utility_function_tests(repo_path): return {"error": "Module not available"}
+
+try:
+    from business_logic_tests import check_business_logic_tests
+except ImportError as e:
+    print(f"Warning: Could not import business_logic_tests check: {e}")
+    def check_business_logic_tests(repo_path): return {"error": "Module not available"}
+
+try:
+    from endpoint_tests import check_endpoint_tests
+except ImportError as e:
+    print(f"Warning: Could not import endpoint_tests check: {e}")
+    def check_endpoint_tests(repo_path): return {"error": "Module not available"}
 
 
 class Week05Evaluator(BaseEvaluator):
@@ -82,145 +94,336 @@ class Week05Evaluator(BaseEvaluator):
         """
         results = {}
         
-        # Checks básicos de estructura
-        results["project_structure"] = self._check_week05_structure()
-        results["test_coverage"] = check_test_coverage(str(self.repo_path))
-        results["test_quality"] = check_test_quality(str(self.repo_path))
-        results["documentation_completeness"] = check_documentation_completeness(str(self.repo_path))
-        results["api_docs"] = check_api_docs(str(self.repo_path))
+        # Testing Setup (35 points total)
+        results["pytest_configuration"] = check_pytest_configuration(str(self.repo_path))
+        results["test_dependencies"] = check_test_dependencies(str(self.repo_path))
+        results["test_structure"] = check_test_structure(str(self.repo_path))
+        results["test_database_config"] = check_test_database_config(str(self.repo_path))
         
-        # Checks de calidad de código
-        results["code_quality"] = self._check_code_quality()
+        # Unit Testing (25 points total)
+        results["model_tests"] = check_model_tests(str(self.repo_path))
+        results["utility_function_tests"] = check_utility_function_tests(str(self.repo_path))
+        results["business_logic_tests"] = check_business_logic_tests(str(self.repo_path))
+        
+        # Integration Testing (25 points total)
+        results["endpoint_tests"] = check_endpoint_tests(str(self.repo_path))
+        results["database_integration_tests"] = self._check_database_integration_tests()
+        results["error_handling_tests"] = self._check_error_handling_tests()
+        
+        # Documentation (15 points total)
+        results["openapi_customization"] = self._check_openapi_customization()
+        results["api_examples"] = self._check_api_examples()
+        results["deployment_readme"] = self._check_deployment_readme()
         
         return results
     
-    def _check_week05_structure(self) -> Dict[str, Any]:
+    def _check_database_integration_tests(self) -> Dict[str, Any]:
         """
-        Verificaciones de estructura específicas para Week 5
+        Verificaciones de tests de integración de base de datos
         """
-        # Archivos requeridos para Week 5
-        required_files = ["main.py", "requirements.txt", "README.md"]
-        file_checks = self.common_checks.check_required_files(required_files)
+        tests_dir = self.repo_path / 'tests'
         
-        # Verificar dependencias específicas de Week 5
-        required_packages = ['fastapi', 'uvicorn', 'pytest', 'httpx', 'pytest-asyncio']
-        package_checks = self.common_checks.check_multiple_packages(required_packages)
+        if not tests_dir.exists():
+            return {
+                "db_integration_tests": 0,
+                "score": 0,
+                "max_score": 8,
+                "recommendations": ["Crear tests de integración de base de datos"]
+            }
         
-        # Análisis de main.py
-        main_syntax = self.common_checks.check_python_syntax("main.py")
+        db_test_count = 0
+        test_files = list(tests_dir.rglob('test*.py'))
+        
+        for test_file in test_files:
+            try:
+                with open(test_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                    # Buscar indicios de tests de integración de DB
+                    db_patterns = [
+                        r'def test.*db',
+                        r'def test.*database',
+                        r'def test.*session',
+                        r'def test.*commit',
+                        r'def test.*transaction'
+                    ]
+                    
+                    for pattern in db_patterns:
+                        if re.search(pattern, content.lower()):
+                            db_test_count += len(re.findall(pattern, content.lower()))
+                            
+            except Exception:
+                continue
+        
+        score = min(db_test_count * 2, 8)
+        
+        recommendations = []
+        if db_test_count == 0:
+            recommendations.append("Crear tests de integración con base de datos")
         
         return {
-            "required_files": file_checks,
-            "required_packages": package_checks,
-            "main_syntax": main_syntax,
-            "structure_score": self._calculate_structure_score(file_checks, package_checks, main_syntax)
+            "db_integration_tests": db_test_count,
+            "score": score,
+            "max_score": 8,
+            "recommendations": recommendations
         }
     
-    def _check_code_quality(self) -> Dict[str, Any]:
+    def _check_error_handling_tests(self) -> Dict[str, Any]:
         """
-        Verificaciones de calidad de código para Week 5
+        Verificaciones de tests de manejo de errores
         """
-        readme_analysis = self.common_checks.check_readme_content("README.md")
+        tests_dir = self.repo_path / 'tests'
         
-        python_files = ["main.py"]
-        syntax_checks = {}
+        if not tests_dir.exists():
+            return {
+                "error_handling_tests": 0,
+                "score": 0,
+                "max_score": 7,
+                "recommendations": ["Crear tests de manejo de errores"]
+            }
+        
+        error_test_count = 0
+        test_files = list(tests_dir.rglob('test*.py'))
+        
+        for test_file in test_files:
+            try:
+                with open(test_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                    # Buscar indicios de tests de manejo de errores
+                    error_patterns = [
+                        r'def test.*error',
+                        r'def test.*exception',
+                        r'def test.*invalid',
+                        r'def test.*fail',
+                        r'pytest\.raises',
+                        r'status_code.*4\d\d',
+                        r'status_code.*5\d\d'
+                    ]
+                    
+                    for pattern in error_patterns:
+                        matches = re.findall(pattern, content.lower())
+                        error_test_count += len(matches)
+                            
+            except Exception:
+                continue
+        
+        score = min(error_test_count * 1.5, 7)
+        
+        recommendations = []
+        if error_test_count == 0:
+            recommendations.append("Crear tests para manejo de errores")
+        
+        return {
+            "error_handling_tests": error_test_count,
+            "score": int(score),
+            "max_score": 7,
+            "recommendations": recommendations
+        }
+    
+    def _check_openapi_customization(self) -> Dict[str, Any]:
+        """
+        Verificaciones de personalización de documentación OpenAPI
+        """
+        main_files = ['main.py', 'app.py', 'api.py']
+        customization_found = False
+        customizations = []
+        
+        for main_file in main_files:
+            file_path = self.repo_path / main_file
+            if file_path.exists():
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        
+                        # Buscar personalizaciones de OpenAPI
+                        if 'title=' in content and 'FastAPI' not in content:
+                            customizations.append("Custom title")
+                            customization_found = True
+                            
+                        if 'description=' in content:
+                            customizations.append("Custom description")
+                            customization_found = True
+                            
+                        if 'version=' in content:
+                            customizations.append("Custom version")
+                            customization_found = True
+                            
+                        if 'tags_metadata' in content:
+                            customizations.append("Tags metadata")
+                            customization_found = True
+                            
+                except Exception:
+                    continue
+        
+        score = 5 if customization_found else 0
+        
+        return {
+            "openapi_customized": customization_found,
+            "customizations": customizations,
+            "score": score,
+            "max_score": 5,
+            "recommendations": ["Personalizar título, descripción y metadata de OpenAPI"] if not customization_found else []
+        }
+    
+    def _check_api_examples(self) -> Dict[str, Any]:
+        """
+        Verificaciones de ejemplos en documentación de API
+        """
+        python_files = list(self.repo_path.rglob('*.py'))
+        examples_found = False
+        example_types = []
         
         for py_file in python_files:
-            if self.common_checks.check_file_exists(py_file):
-                syntax_checks[py_file] = self.common_checks.check_python_syntax(py_file)
+            try:
+                with open(py_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                    # Buscar ejemplos en Pydantic models
+                    if 'example=' in content or 'examples=' in content:
+                        example_types.append("Pydantic examples")
+                        examples_found = True
+                        
+                    # Buscar ejemplos en FastAPI endpoints
+                    if 'response_model_example' in content:
+                        example_types.append("Response examples")
+                        examples_found = True
+                        
+                    # Buscar documentación en docstrings
+                    if '"""' in content and 'example' in content.lower():
+                        example_types.append("Docstring examples")
+                        examples_found = True
+                        
+            except Exception:
+                continue
+        
+        score = 5 if examples_found else 0
         
         return {
-            "readme_analysis": readme_analysis,
-            "syntax_checks": syntax_checks,
-            "overall_quality": self._assess_overall_quality(readme_analysis, syntax_checks)
+            "api_examples_found": examples_found,
+            "example_types": example_types,
+            "score": score,
+            "max_score": 5,
+            "recommendations": ["Agregar ejemplos en modelos Pydantic y endpoints"] if not examples_found else []
         }
     
-    def _calculate_structure_score(self, file_checks: Dict[str, bool], 
-                                 package_checks: Dict[str, bool], 
-                                 main_syntax: Dict[str, Any]) -> float:
-        """Calcula un score de estructura para Week 5"""
-        score = 0
-        total = 0
+    def _check_deployment_readme(self) -> Dict[str, Any]:
+        """
+        Verificaciones de documentación para deployment
+        """
+        readme_file = self.repo_path / 'README.md'
         
-        for file_present in file_checks.values():
-            total += 1
-            if file_present:
-                score += 1
+        if not readme_file.exists():
+            return {
+                "deployment_readme": False,
+                "deployment_sections": [],
+                "score": 0,
+                "max_score": 5,
+                "recommendations": ["Crear README.md con información de deployment"]
+            }
         
-        for package_present in package_checks.values():
-            total += 1
-            if package_present:
-                score += 1
-        
-        total += 1
-        if main_syntax.get("syntax_valid", False):
-            score += 1
-        
-        return (score / total * 100) if total > 0 else 0
+        try:
+            with open(readme_file, 'r', encoding='utf-8') as f:
+                content = f.read().lower()
+                
+                deployment_sections = []
+                
+                # Buscar secciones relacionadas con deployment
+                if 'install' in content or 'instalación' in content:
+                    deployment_sections.append("Installation")
+                    
+                if 'run' in content or 'ejecutar' in content:
+                    deployment_sections.append("Run instructions")
+                    
+                if 'docker' in content:
+                    deployment_sections.append("Docker")
+                    
+                if 'environment' in content or 'env' in content:
+                    deployment_sections.append("Environment variables")
+                    
+                if 'deploy' in content or 'production' in content:
+                    deployment_sections.append("Deployment")
+                
+                has_deployment_info = len(deployment_sections) >= 2
+                score = 5 if has_deployment_info else 2 if deployment_sections else 0
+                
+                return {
+                    "deployment_readme": has_deployment_info,
+                    "deployment_sections": deployment_sections,
+                    "score": score,
+                    "max_score": 5,
+                    "recommendations": ["Agregar más información sobre deployment en README.md"] if not has_deployment_info else []
+                }
+                
+        except Exception:
+            return {
+                "deployment_readme": False,
+                "deployment_sections": [],
+                "score": 0,
+                "max_score": 5,
+                "recommendations": ["Mejorar README.md con información de deployment"]
+            }
     
-    def _assess_overall_quality(self, readme_analysis: Dict[str, Any], 
-                               syntax_checks: Dict[str, Any]) -> str:
-        """Evalúa la calidad general del código para Week 5"""
-        quality_score = 0
-        
-        readme_completeness = readme_analysis.get("estimated_completeness", 0)
-        if readme_completeness > 80:
-            quality_score += 50
-        elif readme_completeness > 60:
-            quality_score += 30
-        elif readme_completeness > 40:
-            quality_score += 15
-        
-        syntax_valid = all(
-            check.get("syntax_valid", False) 
-            for check in syntax_checks.values()
-        )
-        if syntax_valid:
-            quality_score += 50
-        
-        if quality_score >= 85:
-            return "excellent"
-        elif quality_score >= 70:
-            return "good"
-        elif quality_score >= 50:
-            return "acceptable"
-        else:
-            return "needs_improvement"
-    
-    def get_week_specific_feedback(self, results: Dict[str, Any]) -> List[str]:
+    def _calculate_score(self) -> Dict[str, Any]:
         """
-        Genera feedback específico para Week 5
+        Calcula la puntuación basada en los scores de los checks individuales.
+        Este método sobrescribe el cálculo del BaseEvaluator para usar scores numéricos.
         """
-        feedback = []
+        categories = self.criteria.get('categories', {})
+        category_scores = {}
+        total_possible = 0
+        total_earned = 0
         
-        structure = results.get("project_structure", {})
-        if not structure.get("required_files", {}).get("main.py", False):
-            feedback.append("• Crea el archivo main.py principal")
-        
-        missing_packages = [
-            pkg for pkg, present in structure.get("required_packages", {}).items()
-            if not present
-        ]
-        if missing_packages:
-            feedback.append(f"• Agrega a requirements.txt: {', '.join(missing_packages)}")
-        
-        # TODO: Agregar feedback específico para Week 5
-        
-        return feedback
-    
-    def get_week05_summary(self) -> Dict[str, Any]:
-        """
-        Genera un resumen específico para Week 5
-        """
-        if not self.results:
-            return {"error": "No evaluation results available"}
-        
-        structure = self.results.get("project_structure", {})
+        for category_name, category_config in categories.items():
+            category_weight = category_config.get('weight', 0)
+            category_earned = self._calculate_category_score_numeric(category_name, category_config)
+            
+            category_scores[category_name] = {
+                "earned": category_earned,
+                "possible": category_weight,
+                "percentage": (category_earned / category_weight * 100) if category_weight > 0 else 0
+            }
+            
+            total_possible += category_weight
+            total_earned += category_earned
         
         return {
-            "structure_complete": structure.get("structure_score", 0) >= 80,
-            "ready_for_week6": structure.get("structure_score", 0) >= 70
+            "categories": category_scores,
+            "total": {
+                "earned": total_earned,
+                "possible": total_possible,
+                "percentage": (total_earned / total_possible * 100) if total_possible > 0 else 0
+            },
+            "breakdown": {cat: scores["earned"] for cat, scores in category_scores.items()}
         }
+    
+    def _calculate_category_score_numeric(self, category_name: str, category_config: Dict) -> float:
+        """
+        Calcula la puntuación para una categoría basándose en scores numéricos de checks.
+        """
+        checks = category_config.get('checks', [])
+        earned_points = 0
+        max_possible_points = 0
+        
+        for check in checks:
+            check_name = check.get('name')
+            check_points = check.get('points', 0)
+            max_possible_points += check_points
+            
+            # Obtener resultado del check (score numérico)
+            check_result = self.results.get(check_name, {})
+            if isinstance(check_result, dict):
+                score = check_result.get('score', 0)
+                max_score = check_result.get('max_score', check_points)
+                
+                # Normalizar el score al peso del check en el criterio
+                if max_score > 0:
+                    normalized_score = (score / max_score) * check_points
+                    earned_points += normalized_score
+        
+        # No exceder el peso máximo de la categoría
+        max_points = category_config.get('weight', 0)
+        return min(earned_points, max_points)
 
 
 def create_evaluator(student_repo_path: str) -> Week05Evaluator:

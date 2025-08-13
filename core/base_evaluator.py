@@ -294,6 +294,21 @@ class BaseEvaluator(ABC):
             "migrations": lambda r: r.get("migrations", {}).get("passed", False),
             "session_handling": lambda r: r.get("session_handling", {}).get("passed", False),
             "connection_pooling": lambda r: r.get("connection_pooling", {}).get("passed", False),
+            
+            # Week 5 mappings - using score-based checks
+            "pytest_configuration": lambda r: self._score_based_check(r, "pytest_configuration"),
+            "test_dependencies": lambda r: self._score_based_check(r, "test_dependencies"),
+            "test_structure": lambda r: self._score_based_check(r, "test_structure"),
+            "test_database_config": lambda r: self._score_based_check(r, "test_database_config"),
+            "model_tests": lambda r: self._score_based_check(r, "model_tests"),
+            "utility_function_tests": lambda r: self._score_based_check(r, "utility_function_tests"),
+            "business_logic_tests": lambda r: self._score_based_check(r, "business_logic_tests"),
+            "endpoint_tests": lambda r: self._score_based_check(r, "endpoint_tests"),
+            "database_integration_tests": lambda r: self._score_based_check(r, "database_integration_tests"),
+            "error_handling_tests": lambda r: self._score_based_check(r, "error_handling_tests"),
+            "openapi_customization": lambda r: self._score_based_check(r, "openapi_customization"),
+            "api_examples": lambda r: self._score_based_check(r, "api_examples"),
+            "deployment_readme": lambda r: self._score_based_check(r, "deployment_readme"),
         }
         
         # Buscar el mapping correspondiente
@@ -622,3 +637,20 @@ class BaseEvaluator(ABC):
                 successful_items.append("Documentación básica presente en README")
             if documentation.get("score", 0) >= 5:
                 successful_items.append("README con buena estructura y contenido")
+    
+    def _score_based_check(self, results: Dict, check_name: str) -> bool:
+        """
+        Evalúa un check basado en score/max_score.
+        
+        Args:
+            results: Resultados de los checks
+            check_name: Nombre del check
+            
+        Returns:
+            True si el check tiene una puntuación > 0
+        """
+        check_result = results.get(check_name, {})
+        if isinstance(check_result, dict):
+            score = check_result.get('score', 0)
+            return score > 0
+        return False
