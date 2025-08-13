@@ -217,7 +217,7 @@ Ejemplos de uso:
     parser.add_argument(
         "--format", "-f",
         type=str,
-        choices=["json", "markdown", "summary"],
+        choices=["json", "markdown", "summary", "github"],
         default="markdown",
         help="Formato de salida del reporte (default: markdown)"
     )
@@ -264,6 +264,13 @@ Ejemplos de uso:
         print(f"Feedback: {results['feedback_items']} elementos")
     elif args.format == "json":
         print(json.dumps(results, indent=2, ensure_ascii=False))
+    elif args.format == "github":
+        # Formato especial para GitHub Actions (guarda directamente el archivo)
+        if args.output:
+            save_report_to_file(results, args.output, "markdown")
+        else:
+            save_report_to_file(results, "evaluation_result.md", "markdown")
+        print("GitHub Actions report saved to evaluation_result.md")
     else:  # markdown
         if "report" in results:
             print(results["report"])

@@ -1,0 +1,31 @@
+name: 'Entrega Semana 3 - Base de Datos con SQLAlchemy'
+description: 'Envía la URL de tu repositorio público con la semana 3'
+title: '[SEM3] Entrega - <Ficha> - <ApellidoNombre>'
+labels: ['semana3', 'submission']
+body:
+  - type: input
+    id: student_name
+    attributes:
+      label: Nombre completo
+      placeholder: 'Tu nombre y apellido'
+    validations:
+      required: true
+  - type: input
+    id: ficha
+    attributes:
+      label: Ficha / Curso
+      placeholder: 'Ej: 3147246'
+    validations:
+      required: true
+  - type: input
+    id: repo_url
+    attributes:
+      label: URL del repositorio (público)
+      placeholder: 'https://github.com/usuario/ficha-apellido-nombre-fastapi-semana3'
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notas (opcional)
+      placeholder: 'Comentarios para el instructor'

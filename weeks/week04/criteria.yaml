@@ -1,93 +1,93 @@
 week_info:
   number: 4
-  title: 'Base de Datos con SQLAlchemy'
-  description: 'Integración de base de datos relacional con FastAPI'
-  passing_threshold: 70
+  title: 'Bases de Datos Avanzadas con FastAPI'
+  description: 'SQLAlchemy avanzado: migraciones, relaciones, consultas complejas'
+  passing_threshold: 75
   repository_template: 'ficha-apellido-nombre-fastapi-semana4'
 
 learning_objectives:
-  - 'Configurar SQLAlchemy con FastAPI'
-  - 'Crear modelos de base de datos'
   - 'Implementar migraciones con Alembic'
-  - 'Desarrollar CRUD con persistencia'
-  - 'Manejar relaciones entre entidades'
+  - 'Crear relaciones complejas entre modelos'
+  - 'Desarrollar consultas SQLAlchemy avanzadas'
+  - 'Organizar código en estructura profesional'
+  - 'Optimizar rendimiento de base de datos'
 
 categories:
-  database_setup:
-    weight: 30
-    description: 'Configuración de base de datos'
+  advanced_database:
+    weight: 35
+    description: 'Configuración avanzada de base de datos'
     checks:
-      - name: 'sqlalchemy_installed'
-        points: 5
-        description: 'SQLAlchemy incluido en requirements'
+      - name: 'alembic_migrations'
+        points: 12
+        description: 'Migraciones con Alembic configuradas'
         required: true
-      - name: 'database_config'
-        points: 8
-        description: 'Configuración de conexión a BD'
-        required: true
-      - name: 'models_created'
+      - name: 'complex_relationships'
         points: 10
-        description: 'Modelos SQLAlchemy definidos'
+        description: 'Relaciones many-to-many, one-to-many'
         required: true
-      - name: 'alembic_setup'
-        points: 7
-        description: 'Alembic configurado para migraciones'
+      - name: 'database_constraints'
+        points: 8
+        description: 'Constraints, índices y validaciones'
+        required: true
+      - name: 'connection_pooling'
+        points: 5
+        description: 'Configuración de pool de conexiones'
         required: false
 
-  crud_operations:
-    weight: 35
-    description: 'Operaciones CRUD con persistencia'
+  advanced_crud:
+    weight: 30
+    description: 'Operaciones CRUD avanzadas'
     checks:
-      - name: 'create_operations'
+      - name: 'complex_queries'
         points: 10
-        description: 'Endpoints para crear registros'
+        description: 'Queries con joins y filtros complejos'
         required: true
-      - name: 'read_operations'
+      - name: 'bulk_operations'
         points: 8
-        description: 'Endpoints para leer/listar registros'
+        description: 'Operaciones en lote (bulk insert/update)'
         required: true
-      - name: 'update_operations'
-        points: 10
-        description: 'Endpoints para actualizar registros'
-        required: true
-      - name: 'delete_operations'
+      - name: 'transaction_management'
         points: 7
-        description: 'Endpoints para eliminar registros'
+        description: 'Manejo de transacciones'
         required: true
-
-  data_validation:
-    weight: 20
-    description: 'Validación y schemas'
-    checks:
-      - name: 'pydantic_schemas'
-        points: 8
-        description: 'Schemas Pydantic para validación'
-        required: true
-      - name: 'input_validation'
-        points: 7
-        description: 'Validación de datos de entrada'
-        required: true
-      - name: 'error_handling'
+      - name: 'pagination_advanced'
         points: 5
-        description: 'Manejo adecuado de errores de BD'
+        description: 'Paginación y ordenamiento avanzado'
         required: true
 
-  api_design:
-    weight: 15
-    description: 'Diseño de API REST'
+  code_organization:
+    weight: 20
+    description: 'Estructura profesional del código'
     checks:
-      - name: 'rest_conventions'
+      - name: 'models_separation'
         points: 8
-        description: 'Convenciones REST correctas'
+        description: 'Modelos en archivos separados (models/)'
         required: true
-      - name: 'status_codes'
+      - name: 'schemas_separation'
+        points: 6
+        description: 'Schemas en archivos separados (schemas/)'
+        required: true
+      - name: 'repository_pattern'
+        points: 6
+        description: 'Patrón Repository o servicios'
+        required: false
+
+  performance_optimization:
+    weight: 15
+    description: 'Optimización y rendimiento'
+    checks:
+      - name: 'query_optimization'
+        points: 6
+        description: 'Queries optimizadas (eager loading, etc.)'
+        required: true
+      - name: 'database_indexing'
+        points: 5
+        description: 'Índices en campos relevantes'
+        required: true
+      - name: 'caching_strategy'
         points: 4
-        description: 'Códigos de estado HTTP apropiados'
-        required: true
-      - name: 'response_format'
-        points: 3
-        description: 'Formato consistente de respuestas'
-        required: true
+        description: 'Estrategia básica de caching'
+        required: false
 
 automation:
   timeout_seconds: 300
@@ -96,23 +96,24 @@ automation:
     - 'requirements.txt'
     - 'models/'
     - 'schemas/'
+    - 'alembic.ini'
+    - 'alembic/'
 
   dependency_checks:
     - package: 'sqlalchemy'
       min_version: '1.4.0'
     - package: 'alembic'
-      required: false
+      required: true
+    - package: 'fastapi'
+      min_version: '0.100.0'
 
-  database_tests:
-    - operation: 'create'
-      endpoint: '/items/'
-      method: 'POST'
-    - operation: 'read'
-      endpoint: '/items/'
-      method: 'GET'
-    - operation: 'update'
-      endpoint: '/items/{id}'
-      method: 'PUT'
-    - operation: 'delete'
-      endpoint: '/items/{id}'
-      method: 'DELETE'
+  advanced_checks:
+    - feature: 'migrations'
+      files: ['alembic/versions/*.py']
+      required: true
+    - feature: 'relationships'
+      patterns: ['relationship(', 'foreign_key', 'ForeignKey']
+      required: true
+    - feature: 'organization'
+      structure: ['models/', 'schemas/', 'services/']
+      required: true
