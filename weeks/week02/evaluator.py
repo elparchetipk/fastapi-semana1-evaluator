@@ -1,14 +1,22 @@
 """
 Evaluador específico para Semana 2 - CRUD Básico con FastAPI (versión segura análisis estático)
 """
+import sys
 from pathlib import Path
 from typing import Dict, Any, List
 
+# Agregar el directorio padre al path para importar core
+sys.path.append(str(Path(__file__).parent.parent.parent))
+
 from core import BaseEvaluator
 
-from .checks.crud_operations import check_crud_operations
-from .checks.models import check_models
-from .checks.endpoints import check_endpoints
+# Import checks using absolute imports
+current_dir = Path(__file__).parent
+sys.path.append(str(current_dir))
+
+from checks.crud_operations import check_crud_operations
+from checks.models import check_models
+from checks.endpoints import check_endpoints
 
 
 class Week02Evaluator(BaseEvaluator):

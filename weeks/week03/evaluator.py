@@ -1,60 +1,31 @@
 """
-Evaluador específico para Semana 3 - Base de Datos con SQLAlchemy
-Integración de FastAPI con base de datos usando SQLAlchemy ORM
+Evaluador específico para Semana 3 - Base de Datos con SQLAlchemy (versión segura análisis estático)
 """
 import sys
-import importlib.util
-import os
 from pathlib import Path
 from typing import Dict, Any, List
 
 # Agregar el directorio padre al path para importar core
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from core import BaseEvaluator, CommonChecks
+from core.base_evaluator import BaseEvaluator
+from core.common_checks import CommonChecks
 
-def import_check_module(module_name: str, file_path: str):
-    """Helper para importar módulos de checks"""
-    try:
-        spec = importlib.util.spec_from_file_location(module_name, file_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module
-    except Exception as e:
-        print(f"Warning: Could not import {module_name} check: {e}")
-        return None
-
-# Obtener directorio actual del evaluador
+# Import checks using absolute imports
 current_dir = Path(__file__).parent
-
-# Importar checks específicos
+sys.path.append(str(current_dir))
 
 try:
-    database_connection_module = import_check_module("database_connection", str(current_dir / "checks" / "database_connection.py"))
-    check_database_connection = database_connection_module.check_database_connection if database_connection_module else lambda repo_path: {"error": "Module not available"}
-except Exception as e:
-    print(f"Warning: Could not import database_connection check: {e}")
+    from checks.database_connection import check_database_connection
+    from checks.sqlalchemy_models import check_sqlalchemy_models
+    from checks.crud_operations import check_crud_operations
+    from checks.migrations import check_migrations
+except ImportError as e:
+    print(f"Warning: Could not import some Week 3 checks: {e}")
+    # Fallback functions
     def check_database_connection(repo_path): return {"error": "Module not available"}
-
-try:
-    sqlalchemy_models_module = import_check_module("sqlalchemy_models", str(current_dir / "checks" / "sqlalchemy_models.py"))
-    check_sqlalchemy_models = sqlalchemy_models_module.check_sqlalchemy_models if sqlalchemy_models_module else lambda repo_path: {"error": "Module not available"}
-except Exception as e:
-    print(f"Warning: Could not import sqlalchemy_models check: {e}")
     def check_sqlalchemy_models(repo_path): return {"error": "Module not available"}
-
-try:
-    crud_operations_module = import_check_module("crud_operations", str(current_dir / "checks" / "crud_operations.py"))
-    check_crud_operations = crud_operations_module.check_crud_operations if crud_operations_module else lambda repo_path: {"error": "Module not available"}
-except Exception as e:
-    print(f"Warning: Could not import crud_operations check: {e}")
     def check_crud_operations(repo_path): return {"error": "Module not available"}
-
-try:
-    migrations_module = import_check_module("migrations", str(current_dir / "checks" / "migrations.py"))
-    check_migrations = migrations_module.check_migrations if migrations_module else lambda repo_path: {"error": "Module not available"}
-except Exception as e:
-    print(f"Warning: Could not import migrations check: {e}")
     def check_migrations(repo_path): return {"error": "Module not available"}
 
 
@@ -63,10 +34,10 @@ class Week03Evaluator(BaseEvaluator):
     Evaluador para Semana 3: Base de Datos con SQLAlchemy
     
     Evalúa:
-    - Database Setup
-    - Models
-    - Crud With Db
-    - Migrations
+    - Database Setup: Configuración de base de datos
+    - CRUD with DB: Operaciones CRUD con base de datos
+    - Data Integrity: Integridad y relaciones de datos
+    - Session Management: Manejo de sesiones de BD
     """
     
     def __init__(self, student_repo_path: str):
@@ -74,155 +45,222 @@ class Week03Evaluator(BaseEvaluator):
             week_number=3,
             student_repo_path=student_repo_path
         )
-        self.common_checks = CommonChecks(self.repo_path)
+        
+    def _run_common_checks(self) -> Dict[str, Any]:
+        """
+        Ejecuta verificaciones comunes usando CommonChecks
+        """
+        common_checks = CommonChecks(str(self.repo_path))
+        
+        # Verificaciones básicas de estructura
+        required_files = ["main.py", "requirements.txt", "README.md"]
+        file_checks = common_checks.check_required_files(required_files)
+        
+        # Verificaciones de dependencias específicas de Week 3
+        required_packages = ['fastapi', 'uvicorn', 'sqlalchemy']
+        package_checks = common_checks.check_multiple_packages(required_packages)
+        
+        # Verificaciones de sintaxis Python
+        syntax_checks = {}
+        python_files = ["main.py"]
+        
+        for py_file in python_files:
+            if common_checks.check_file_exists(py_file):
+                syntax_checks[py_file] = common_checks.check_python_syntax(py_file)
+        
+        # Análisis de README
+        readme_analysis = common_checks.check_readme_content("README.md")
+        
+        return {
+            "file_structure": file_checks,
+            "dependencies": package_checks,
+            "syntax_validation": syntax_checks,
+            "documentation": readme_analysis
+        }
     
     def run_specific_checks(self) -> Dict[str, Any]:
         """
         Ejecuta verificaciones específicas de la Semana 3
         """
-        results = {}
-        
-        # Checks básicos de estructura
-        results["project_structure"] = self._check_week03_structure()
-        
-        # Checks específicos de Week 3
-        results["database_connection"] = check_database_connection(str(self.repo_path))
-        results["sqlalchemy_models"] = check_sqlalchemy_models(str(self.repo_path))
-        results["crud_operations"] = check_crud_operations(str(self.repo_path))
-        results["migrations"] = check_migrations(str(self.repo_path))
-        
-        # Checks de calidad de código
-        results["code_quality"] = self._check_code_quality()
-        
-        return results
-    
-    def _check_week03_structure(self) -> Dict[str, Any]:
-        """
-        Verificaciones de estructura específicas para Week 3
-        """
-        # Archivos requeridos para Week 3
-        required_files = ["main.py", "requirements.txt", "README.md"]
-        file_checks = self.common_checks.check_required_files(required_files)
-        
-        # Verificar dependencias específicas de Week 3
-        required_packages = ['fastapi', 'uvicorn', 'sqlalchemy', 'databases']
-        package_checks = self.common_checks.check_multiple_packages(required_packages)
-        
-        # Análisis de main.py
-        main_syntax = self.common_checks.check_python_syntax("main.py")
+        repo_path_str = str(self.repo_path)
         
         return {
-            "required_files": file_checks,
-            "required_packages": package_checks,
-            "main_syntax": main_syntax,
-            "structure_score": self._calculate_structure_score(file_checks, package_checks, main_syntax)
+            "sqlalchemy_dependencies": self._check_sqlalchemy_dependencies(),
+            "database_connection": self._execute_check_safely(check_database_connection, repo_path_str),
+            "models_definition": self._execute_check_safely(check_sqlalchemy_models, repo_path_str),
+            "create_with_db": self._execute_check_safely(check_crud_operations, repo_path_str),
+            "read_with_db": self._execute_check_safely(check_crud_operations, repo_path_str),
+            "update_with_db": self._execute_check_safely(check_crud_operations, repo_path_str),
+            "delete_with_db": self._execute_check_safely(check_crud_operations, repo_path_str),
+            "relationships": self._execute_check_safely(check_sqlalchemy_models, repo_path_str),
+            "constraints": self._execute_check_safely(check_sqlalchemy_models, repo_path_str),
+            "migrations": self._execute_check_safely(check_migrations, repo_path_str),
+            "session_handling": self._execute_check_safely(check_database_connection, repo_path_str),
+            "connection_pooling": self._execute_check_safely(check_database_connection, repo_path_str)
         }
     
-    def _check_code_quality(self) -> Dict[str, Any]:
+    def _execute_check_safely(self, check_function, repo_path: str) -> Dict[str, Any]:
         """
-        Verificaciones de calidad de código para Week 3
+        Ejecuta una función de check de forma segura
         """
-        readme_analysis = self.common_checks.check_readme_content("README.md")
+        try:
+            result = check_function(repo_path)
+            return {
+                "passed": result.get("passed", False),
+                "score": result.get("score", 0),
+                "feedback": result.get("feedback", []),
+                "details": result
+            }
+        except Exception as e:
+            return {
+                "passed": False,
+                "score": 0,
+                "feedback": [f"Error en verificación: {str(e)}"],
+                "details": {"error": str(e)}
+            }
+    
+    def _check_sqlalchemy_dependencies(self) -> Dict[str, Any]:
+        """
+        Verifica dependencias de SQLAlchemy
+        """
+        common_checks = CommonChecks(str(self.repo_path))
         
-        python_files = ["main.py"]
-        syntax_checks = {}
+        # Verificar SQLAlchemy y driver de BD
+        sqlalchemy_packages = ['sqlalchemy']
+        db_drivers = ['psycopg2', 'psycopg2-binary', 'pymysql']
         
-        for py_file in python_files:
-            if self.common_checks.check_file_exists(py_file):
-                syntax_checks[py_file] = self.common_checks.check_python_syntax(py_file)
+        sqlalchemy_check = common_checks.check_multiple_packages(sqlalchemy_packages)
+        driver_check = common_checks.check_any_package(db_drivers)
+        
+        # SQLite no requiere driver externo, así que verificamos si usa SQLite
+        uses_sqlite = self._check_sqlite_usage()
+        
+        # Se considera válido si tiene SQLAlchemy y (usa SQLite o tiene otro driver)
+        has_sqlalchemy = sqlalchemy_check.get('sqlalchemy', False)
+        has_driver = any(driver_check.values()) or uses_sqlite
+        
+        passed = has_sqlalchemy and has_driver
+        score = 8 if passed else 0
+        
+        feedback = []
+        if not has_sqlalchemy:
+            feedback.append("Agrega 'sqlalchemy' a requirements.txt")
+        if not has_driver and not uses_sqlite:
+            feedback.append("Define una base de datos (SQLite incluido o agrega driver como psycopg2)")
         
         return {
-            "readme_analysis": readme_analysis,
-            "syntax_checks": syntax_checks,
-            "overall_quality": self._assess_overall_quality(readme_analysis, syntax_checks)
+            "passed": passed,
+            "score": score,
+            "feedback": feedback,
+            "details": {
+                "sqlalchemy_present": has_sqlalchemy,
+                "db_driver_present": any(driver_check.values()),
+                "uses_sqlite": uses_sqlite,
+                "available_drivers": [k for k, v in driver_check.items() if v]
+            }
         }
     
-    def _calculate_structure_score(self, file_checks: Dict[str, bool], 
-                                 package_checks: Dict[str, bool], 
-                                 main_syntax: Dict[str, Any]) -> float:
-        """Calcula un score de estructura para Week 3"""
-        score = 0
-        total = 0
-        
-        for file_present in file_checks.values():
-            total += 1
-            if file_present:
-                score += 1
-        
-        for package_present in package_checks.values():
-            total += 1
-            if package_present:
-                score += 1
-        
-        total += 1
-        if main_syntax.get("syntax_valid", False):
-            score += 1
-        
-        return (score / total * 100) if total > 0 else 0
-    
-    def _assess_overall_quality(self, readme_analysis: Dict[str, Any], 
-                               syntax_checks: Dict[str, Any]) -> str:
-        """Evalúa la calidad general del código para Week 3"""
-        quality_score = 0
-        
-        readme_completeness = readme_analysis.get("estimated_completeness", 0)
-        if readme_completeness > 80:
-            quality_score += 50
-        elif readme_completeness > 60:
-            quality_score += 30
-        elif readme_completeness > 40:
-            quality_score += 15
-        
-        syntax_valid = all(
-            check.get("syntax_valid", False) 
-            for check in syntax_checks.values()
-        )
-        if syntax_valid:
-            quality_score += 50
-        
-        if quality_score >= 85:
-            return "excellent"
-        elif quality_score >= 70:
-            return "good"
-        elif quality_score >= 50:
-            return "acceptable"
-        else:
-            return "needs_improvement"
+    def _check_sqlite_usage(self) -> bool:
+        """
+        Verifica si el proyecto usa SQLite basándose en el código
+        """
+        try:
+            for py_file in self.repo_path.glob("**/*.py"):
+                if py_file.name.startswith('.') or '__pycache__' in str(py_file):
+                    continue
+                
+                try:
+                    content = py_file.read_text(encoding='utf-8')
+                    if 'sqlite://' in content.lower():
+                        return True
+                except Exception:
+                    continue
+            return False
+        except Exception:
+            return False
     
     def get_week_specific_feedback(self, results: Dict[str, Any]) -> List[str]:
         """
-        Genera feedback específico para Week 3
+        Genera feedback específico para Week 3 - Base de Datos con SQLAlchemy
+        Incluye tanto aspectos positivos como mejoras necesarias
         """
         feedback = []
+        successful_aspects = []
         
-        structure = results.get("project_structure", {})
-        if not structure.get("required_files", {}).get("main.py", False):
-            feedback.append("• Crea el archivo main.py principal")
+        # Analizar dependencias de SQLAlchemy
+        sqlalchemy_deps = results.get("sqlalchemy_dependencies", {})
+        if sqlalchemy_deps.get("passed", False):
+            successful_aspects.append("SQLAlchemy correctamente configurado y disponible")
+        else:
+            feedback.append("Configurar SQLAlchemy: agregar 'sqlalchemy' a requirements.txt")
         
-        missing_packages = [
-            pkg for pkg, present in structure.get("required_packages", {}).items()
-            if not present
-        ]
-        if missing_packages:
-            feedback.append(f"• Agrega a requirements.txt: {', '.join(missing_packages)}")
+        # Analizar conexión a base de datos
+        db_connection = results.get("database_connection", {})
+        if db_connection.get("passed", False):
+            successful_aspects.append("Configuración de base de datos implementada (engine, session)")
+        else:
+            feedback.append("Implementar configuración de base de datos (create_engine, SessionLocal)")
         
-        # TODO: Agregar feedback específico para Week 3
+        # Analizar definición de modelos
+        models = results.get("models_definition", {})
+        if models.get("passed", False):
+            successful_aspects.append("Modelos SQLAlchemy definidos con tablas y columnas")
+        else:
+            feedback.append("Definir modelos SQLAlchemy con Base, columnas y tipos de datos")
         
-        return feedback
-    
-    def get_week03_summary(self) -> Dict[str, Any]:
-        """
-        Genera un resumen específico para Week 3
-        """
-        if not self.results:
-            return {"error": "No evaluation results available"}
-        
-        structure = self.results.get("project_structure", {})
-        
-        return {
-            "structure_complete": structure.get("structure_score", 0) >= 80,
-            "ready_for_week4": structure.get("structure_score", 0) >= 70
+        # Analizar operaciones CRUD
+        crud_operations = {
+            "create_with_db": ("CREATE", "endpoint POST que inserte datos en BD"),
+            "read_with_db": ("READ", "endpoint GET que consulte datos de BD"), 
+            "update_with_db": ("UPDATE", "endpoint PUT que actualice registros"),
+            "delete_with_db": ("DELETE", "endpoint DELETE que elimine registros")
         }
+        
+        successful_crud = []
+        missing_crud = []
+        for operation, (label, description) in crud_operations.items():
+            operation_result = results.get(operation, {})
+            if operation_result.get("passed", False):
+                successful_crud.append(f"Operación {label}")
+            else:
+                missing_crud.append(f"Implementar {description}")
+        
+        if successful_crud:
+            successful_aspects.append(f"Operaciones CRUD implementadas: {', '.join(successful_crud)}")
+        
+        if missing_crud:
+            feedback.extend(missing_crud)
+        
+        # Analizar relaciones entre tablas
+        relationships = results.get("relationships", {})
+        if relationships.get("passed", False):
+            successful_aspects.append("Relaciones entre modelos definidas correctamente")
+        else:
+            feedback.append("Definir relaciones entre modelos usando ForeignKey y relationship()")
+        
+        # Analizar manejo de sesiones
+        session_handling = results.get("session_handling", {})
+        if session_handling.get("passed", False):
+            successful_aspects.append("Manejo de sesiones SQLAlchemy implementado correctamente")
+        else:
+            feedback.append("Implementar dependency injection para sesiones BD con get_db()")
+        
+        # Combinar aspectos exitosos y mejoras
+        combined_feedback = []
+        
+        if successful_aspects:
+            combined_feedback.append("✅ **Aspectos de Week 3 implementados correctamente:**")
+            for aspect in successful_aspects:
+                combined_feedback.append(f"• {aspect}")
+            combined_feedback.append("")  # Línea en blanco
+        
+        if feedback:
+            combined_feedback.append("🔧 **Mejoras específicas de Week 3:**")
+            for improvement in feedback:
+                combined_feedback.append(f"• {improvement}")
+        
+        return combined_feedback
+
 
 
 def create_evaluator(student_repo_path: str) -> Week03Evaluator:

@@ -1,86 +1,86 @@
 week_info:
   number: 3
-  title: "Base de Datos con SQLAlchemy"
-  description: "Integración de FastAPI con base de datos usando SQLAlchemy ORM"
-  passing_threshold: 70
-  repository_pattern: "*fastapi-semana3*"
+  title: 'Base de Datos con SQLAlchemy'
+  description: 'Integración de FastAPI con base de datos usando SQLAlchemy ORM'
+  passing_threshold: 75
+  repository_pattern: '*fastapi-semana3*'
 
 categories:
   database_setup:
     weight: 25
-    description: "Configuración de base de datos"
+    description: 'Configuración de base de datos'
     checks:
-      - name: "sqlalchemy_dependencies"
+      - name: 'sqlalchemy_dependencies'
         points: 8
-        description: "SQLAlchemy y driver de BD en requirements"
+        description: 'SQLAlchemy y driver de BD en requirements'
         required: true
-      - name: "database_connection"
+      - name: 'database_connection'
         points: 10
-        description: "Configuración de conexión a BD"
+        description: 'Configuración de conexión a BD'
         required: true
-      - name: "models_definition"
+      - name: 'models_definition'
         points: 7
-        description: "Modelos SQLAlchemy definidos correctamente"
+        description: 'Modelos SQLAlchemy definidos correctamente'
         required: true
 
   crud_with_db:
     weight: 40
-    description: "CRUD operations con base de datos"
+    description: 'CRUD operations con base de datos'
     checks:
-      - name: "create_with_db"
+      - name: 'create_with_db'
         points: 10
-        description: "CREATE: Insertar datos en BD"
+        description: 'CREATE: Insertar datos en BD'
         required: true
-      - name: "read_with_db"
+      - name: 'read_with_db'
         points: 10
-        description: "READ: Consultar datos desde BD"
+        description: 'READ: Consultar datos desde BD'
         required: true
-      - name: "update_with_db"
+      - name: 'update_with_db'
         points: 10
-        description: "UPDATE: Actualizar datos en BD"
+        description: 'UPDATE: Actualizar datos en BD'
         required: true
-      - name: "delete_with_db"
+      - name: 'delete_with_db'
         points: 10
-        description: "DELETE: Eliminar datos de BD"
+        description: 'DELETE: Eliminar datos de BD'
         required: true
 
   data_integrity:
     weight: 20
-    description: "Integridad y relaciones de datos"
+    description: 'Integridad y relaciones de datos'
     checks:
-      - name: "relationships"
+      - name: 'relationships'
         points: 8
-        description: "Relaciones entre tablas (Foreign Keys)"
+        description: 'Relaciones entre tablas (Foreign Keys)'
         required: true
-      - name: "constraints"
+      - name: 'constraints'
         points: 7
-        description: "Restricciones y validaciones"
+        description: 'Restricciones y validaciones'
         required: true
-      - name: "migrations"
+      - name: 'migrations'
         points: 5
-        description: "Manejo básico de migraciones"
+        description: 'Manejo básico de migraciones'
         required: false
 
   session_management:
     weight: 15
-    description: "Manejo de sesiones de BD"
+    description: 'Manejo de sesiones de BD'
     checks:
-      - name: "session_handling"
+      - name: 'session_handling'
         points: 8
-        description: "Manejo correcto de sesiones SQLAlchemy"
+        description: 'Manejo correcto de sesiones SQLAlchemy'
         required: true
-      - name: "connection_pooling"
+      - name: 'connection_pooling'
         points: 7
-        description: "Configuración de pool de conexiones"
+        description: 'Configuración de pool de conexiones'
         required: false
 
 bonus_criteria:
-  - name: "query_optimization"
+  - name: 'query_optimization'
     points: 5
-    description: "Consultas optimizadas (joins, eager loading)"
-  - name: "database_seeding"
+    description: 'Consultas optimizadas (joins, eager loading)'
+  - name: 'database_seeding'
     points: 5
-    description: "Datos de prueba iniciales"
+    description: 'Datos de prueba iniciales'
 
 technologies:
   required:
@@ -92,8 +92,8 @@ technologies:
     - psycopg2
 
 learning_objectives:
-  - "Integrar FastAPI con SQLAlchemy"
-  - "Definir modelos de base de datos"
-  - "Implementar relaciones entre tablas"
-  - "Manejar sesiones de base de datos"
-  - "Realizar operaciones CRUD persistentes"
+  - 'Integrar FastAPI con SQLAlchemy'
+  - 'Definir modelos de base de datos'
+  - 'Implementar relaciones entre tablas'
+  - 'Manejar sesiones de base de datos'
+  - 'Realizar operaciones CRUD persistentes'

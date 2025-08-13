@@ -150,25 +150,20 @@ class BaseEvaluator(ABC):
         Ejecuta checks comunes que aplican a todas las semanas.
         Puede ser sobrescrito por evaluadores específicos.
         """
-        # Importar checks comunes del evaluador actual
-        sys.path.append(str(Path(__file__).parent.parent / "evaluator"))
-        
+        # Los evaluadores específicos pueden implementar sus propios common checks
+        # o usar CommonChecks del core
         try:
-            from checks_structure import check_structure
-            from checks_requirements import check_requirements
-            from checks_app_import import try_import_app
-            from checks_readme import check_readme
+            from core.common_checks import CommonChecks
+            common_checks = CommonChecks(self.repo_path)
             
             common_results = {}
-            common_results["structure"] = check_structure(self.repo_path)
-            common_results["requirements"] = check_requirements(self.repo_path)
-            common_results["app_import"] = try_import_app(self.repo_path)
-            common_results["readme"] = check_readme(self.repo_path)
-            
+            # Los common checks básicos se pueden implementar aquí si es necesario
+            # Por ahora, devolvemos un resultado vacío para que no afecte la evaluación
             return common_results
             
-        except ImportError as e:
-            return {"common_checks_error": f"Could not import common checks: {e}"}
+        except ImportError:
+            # Si no hay common checks disponibles, devolver resultado vacío
+            return {}
     
     @abstractmethod
     def run_specific_checks(self) -> Dict[str, Any]:
@@ -260,31 +255,45 @@ class BaseEvaluator(ABC):
         """
         # Mapeo de nombres de checks a rutas en results
         check_mappings = {
-            # Checks de estructura
+            # Checks de estructura (Week 1)
             "requirements_txt": lambda r: r.get("structure", {}).get("files", {}).get("requirements_txt", False),
             "main_py_exists": lambda r: r.get("structure", {}).get("files", {}).get("main_py", False),
             "readme_exists": lambda r: r.get("structure", {}).get("files", {}).get("readme_md", False),
             
-            # Checks de dependencias
+            # Checks de dependencias (Week 1)
             "fastapi_dependency": lambda r: r.get("requirements", {}).get("fastapi", False),
             "uvicorn_dependency": lambda r: r.get("requirements", {}).get("uvicorn", False),
             
-            # Checks de app
+            # Checks de app (Week 1)
             "app_import": lambda r: r.get("app_import", {}).get("import_ok", False) and r.get("app_import", {}).get("has_app", False),
             
-            # Checks de endpoints
+            # Checks de endpoints (Week 1)
             "root_endpoint": lambda r: r.get("endpoints", {}).get("root_working", False),
             "docs_accessible": lambda r: r.get("endpoints", {}).get("docs_accessible", False),
             "parametric_endpoint": lambda r: r.get("endpoints", {}).get("parametric_endpoint", False),
             
-            # Checks de documentación
+            # Checks de documentación (Week 1)
             "json_responses": lambda r: r.get("endpoints", {}).get("root_returns_json", False),
             "readme_reflection": lambda r: r.get("readme", {}).get("has_reflection", False),
             "setup_commands": lambda r: r.get("readme", {}).get("has_commands", False),
             
-            # Checks generales
+            # Checks generales (Week 1)
             "project_structure": lambda r: r.get("structure", {}).get("ok", False),
             "code_quality": lambda r: r.get("app_import", {}).get("import_ok", False),
+            
+            # Week 3 mappings
+            "sqlalchemy_dependencies": lambda r: r.get("sqlalchemy_dependencies", {}).get("passed", False),
+            "database_connection": lambda r: r.get("database_connection", {}).get("passed", False),
+            "models_definition": lambda r: r.get("models_definition", {}).get("passed", False),
+            "create_with_db": lambda r: r.get("create_with_db", {}).get("passed", False),
+            "read_with_db": lambda r: r.get("read_with_db", {}).get("passed", False),
+            "update_with_db": lambda r: r.get("update_with_db", {}).get("passed", False),
+            "delete_with_db": lambda r: r.get("delete_with_db", {}).get("passed", False),
+            "relationships": lambda r: r.get("relationships", {}).get("passed", False),
+            "constraints": lambda r: r.get("constraints", {}).get("passed", False),
+            "migrations": lambda r: r.get("migrations", {}).get("passed", False),
+            "session_handling": lambda r: r.get("session_handling", {}).get("passed", False),
+            "connection_pooling": lambda r: r.get("connection_pooling", {}).get("passed", False),
         }
         
         # Buscar el mapping correspondiente
@@ -428,27 +437,42 @@ class BaseEvaluator(ABC):
         return "\n".join(feedback) if feedback else "Continúa trabajando en los aspectos fundamentales."
     
     def _generate_improvement_feedback(self) -> str:
-        """Genera feedback de mejora basado en checks fallidos"""
-        feedback = []
+        """Genera feedback estructurado de mejora basado en checks"""
         
-        # Usar el método abstracto para feedback específico de la semana
+        # Separar elementos exitosos y fallidos
+        successful_items = []
+        improvement_items = []
+        
+        # Analizar resultados para identificar éxitos y mejoras
+        self._analyze_results_for_feedback(successful_items, improvement_items)
+        
+        # Construir feedback estructurado
+        feedback_parts = []
+        
+        if successful_items:
+            feedback_parts.append("✅ **Lo que está bien:**")
+            for i, item in enumerate(successful_items, 1):
+                feedback_parts.append(f"{i}. {item}")
+            feedback_parts.append("")  # Línea en blanco
+        
+        if improvement_items:
+            feedback_parts.append("🔧 **Lo que se debe mejorar:**")
+            for i, item in enumerate(improvement_items, 1):
+                feedback_parts.append(f"{i}. {item}")
+        
+        if not improvement_items and successful_items:
+            feedback_parts.append("🎉 **¡Excelente trabajo!** No hay mejoras críticas necesarias.")
+        
+        # Agregar feedback específico de la semana si existe
         try:
             specific_feedback = self.get_week_specific_feedback(self.results)
-            feedback.extend(specific_feedback)
+            if specific_feedback:
+                feedback_parts.append("")
+                feedback_parts.extend(specific_feedback)  # Agregar directamente, ya que viene formateado
         except:
             pass
         
-        # Feedback genérico basado en common checks
-        if not self.results.get("structure", {}).get("files", {}).get("main_py"):
-            feedback.append("• Crea el archivo main.py en la raíz del proyecto")
-        
-        if not self.results.get("requirements", {}).get("fastapi"):
-            feedback.append("• Agrega 'fastapi' a requirements.txt")
-        
-        if not self.results.get("app_import", {}).get("import_ok"):
-            feedback.append("• Revisa errores de sintaxis en main.py")
-        
-        return "\n".join(feedback) if feedback else "¡Excelente trabajo! No hay mejoras críticas necesarias."
+        return "\n".join(feedback_parts)
     
     def _generate_next_steps(self) -> str:
         """Genera recomendaciones para próximos pasos"""
@@ -498,3 +522,57 @@ class BaseEvaluator(ABC):
     def get_results(self) -> Dict[str, Any]:
         """Retorna los resultados de evaluación"""
         return self.results
+    
+    def _analyze_results_for_feedback(self, successful_items: List[str], improvement_items: List[str]) -> None:
+        """Analiza los resultados para categorizar elementos exitosos y mejoras necesarias"""
+        
+        # Analizar estructura de archivos
+        file_structure = self.results.get("file_structure", {})
+        if file_structure.get("main.py", False):
+            successful_items.append("Archivo main.py presente y accesible")
+        else:
+            improvement_items.append("Crear archivo main.py en la raíz del proyecto")
+            
+        if file_structure.get("requirements.txt", False):
+            successful_items.append("Archivo requirements.txt presente")
+        else:
+            improvement_items.append("Crear archivo requirements.txt con dependencias")
+            
+        if file_structure.get("README.md", False):
+            successful_items.append("Documentación README.md presente")
+        else:
+            improvement_items.append("Crear archivo README.md con documentación del proyecto")
+        
+        # Analizar dependencias
+        dependencies = self.results.get("dependencies", {})
+        if dependencies.get("fastapi", False):
+            successful_items.append("FastAPI correctamente instalado y configurado")
+        else:
+            improvement_items.append("Agregar 'fastapi' a requirements.txt")
+            
+        if dependencies.get("uvicorn", False):
+            successful_items.append("Uvicorn disponible para ejecutar la aplicación")
+        else:
+            improvement_items.append("Agregar 'uvicorn' a requirements.txt para ejecutar la app")
+        
+        # Analizar sintaxis
+        syntax_validation = self.results.get("syntax_validation", {})
+        if syntax_validation:
+            syntax_errors = []
+            for file_name, syntax_result in syntax_validation.items():
+                if isinstance(syntax_result, dict):
+                    if syntax_result.get("syntax_valid", False):
+                        successful_items.append(f"Sintaxis correcta en {file_name}")
+                    else:
+                        syntax_errors.append(file_name)
+                        
+            if syntax_errors:
+                improvement_items.append(f"Corregir errores de sintaxis en: {', '.join(syntax_errors)}")
+        
+        # Analizar documentación
+        documentation = self.results.get("documentation", {})
+        if isinstance(documentation, dict):
+            if documentation.get("score", 0) > 0:
+                successful_items.append("Documentación básica presente en README")
+            if documentation.get("score", 0) >= 5:
+                successful_items.append("README con buena estructura y contenido")

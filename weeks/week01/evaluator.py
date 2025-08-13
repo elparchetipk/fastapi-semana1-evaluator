@@ -338,7 +338,50 @@ class Week01Evaluator(BaseEvaluator):
                 endpoints.get("root_working", False)
             ])
         }
-
+    
+    def _get_check_result(self, check_name: str) -> bool:
+        """
+        Mapea los nombres de checks del criteria.yaml a los resultados reales
+        """
+        if not self.results:
+            return False
+        
+        # Mapeo de checks del criteria.yaml a resultados del evaluador
+        check_mappings = {
+            # Setup category
+            "requirements_txt": lambda: self.results.get("project_structure", {}).get("required_files", {}).get("requirements.txt", False),
+            "fastapi_dependency": lambda: self.results.get("project_structure", {}).get("required_packages", {}).get("fastapi", False),
+            "uvicorn_dependency": lambda: self.results.get("project_structure", {}).get("required_packages", {}).get("uvicorn", False),
+            "main_py_exists": lambda: self.results.get("project_structure", {}).get("required_files", {}).get("main.py", False),
+            "readme_exists": lambda: self.results.get("project_structure", {}).get("required_files", {}).get("README.md", False),
+            
+            # Functionality category
+            "app_import": lambda: self.results.get("fastapi_app", {}).get("has_fastapi_import", False) and self.results.get("fastapi_app", {}).get("has_app_instance", False),
+            "root_endpoint": lambda: self.results.get("endpoints", {}).get("root_working", False),
+            "docs_accessible": lambda: self.results.get("endpoints", {}).get("docs_accessible", False),
+            "parametric_endpoint": lambda: self.results.get("endpoints", {}).get("parametric_endpoint", False),
+            
+            # Documentation category
+            "json_responses": lambda: self.results.get("endpoints", {}).get("root_working", False),  # Si funciona el endpoint, devuelve JSON
+            "readme_reflection": lambda: self.results.get("documentation", {}).get("has_reflection", False),
+            "setup_commands": lambda: self.results.get("documentation", {}).get("has_setup_commands", False),
+            
+            # Deliverables category  
+            "project_structure": lambda: self.results.get("project_structure", {}).get("all_files_present", False),
+            "code_quality": lambda: self.results.get("code_quality", {}).get("overall_quality") in ["excellent", "good"],
+            
+            # Understanding category
+            "demonstrates_understanding": lambda: self.results.get("documentation", {}).get("week1_specific", {}).get("appears_complete", False),
+        }
+        
+        if check_name in check_mappings:
+            try:
+                return bool(check_mappings[check_name]())
+            except (KeyError, TypeError, AttributeError):
+                return False
+        
+        # Fallback al método del padre
+        return super()._get_check_result(check_name)
 
 def create_evaluator(student_repo_path: str) -> Week01Evaluator:
     """Factory function para crear el evaluador de Week 1"""

@@ -105,6 +105,7 @@ class CommonChecks:
     def check_package_in_requirements(self, package_name: str) -> bool:
         """
         Verifica si un paquete específico está en requirements.txt.
+        Soporta extras como uvicorn[standard].
         
         Args:
             package_name: Nombre del paquete a buscar
@@ -116,8 +117,19 @@ class CommonChecks:
         if not req_info["exists"]:
             return False
         
-        packages = [pkg.lower() for pkg in req_info["packages"]]
-        return package_name.lower() in packages
+        package_name_lower = package_name.lower()
+        
+        # Buscar coincidencia exacta o como parte de un paquete con extras
+        for pkg in req_info["packages"]:
+            pkg_lower = pkg.lower()
+            # Coincidencia exacta
+            if pkg_lower == package_name_lower:
+                return True
+            # Coincidencia con extras (ej: uvicorn[standard] contiene uvicorn)
+            if '[' in pkg_lower and pkg_lower.split('[')[0] == package_name_lower:
+                return True
+        
+        return False
     
     def check_multiple_packages(self, packages: List[str]) -> Dict[str, bool]:
         """
@@ -125,6 +137,22 @@ class CommonChecks:
         
         Args:
             packages: Lista de nombres de paquetes
+            
+        Returns:
+            Dict con el estado de cada paquete
+        """
+        return {
+            package: self.check_package_in_requirements(package)
+            for package in packages
+        }
+    
+    def check_any_package(self, packages: List[str]) -> Dict[str, bool]:
+        """
+        Verifica si al menos uno de varios paquetes está presente en requirements.txt.
+        Útil para verificar drivers de BD o paquetes alternativos.
+        
+        Args:
+            packages: Lista de nombres de paquetes alternativos
             
         Returns:
             Dict con el estado de cada paquete
