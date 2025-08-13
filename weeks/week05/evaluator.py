@@ -424,6 +424,81 @@ class Week05Evaluator(BaseEvaluator):
         # No exceder el peso máximo de la categoría
         max_points = category_config.get('weight', 0)
         return min(earned_points, max_points)
+    
+    def _generate_report(self, scoring: Dict[str, Any]) -> str:
+        """
+        Genera el reporte final de evaluación para Week 5.
+        Sobrescribe el método del BaseEvaluator para generar un reporte específico.
+        """
+        # Información básica
+        week_info = self.criteria.get('week_info', {})
+        final_score = scoring['total']['percentage']
+        passed = scoring['total']['earned'] >= self.criteria['week_info'].get('passing_threshold', 75)
+        status = "APROBADO ✅" if passed else "NO APROBADO ❌"
+        
+        # Construir reporte markdown
+        report = f"""# 📋 Feedback de Evaluación - Semana 5: Testing y Documentación Avanzada
+
+**Score Final**: {final_score:.1f}% ({status})
+
+## 🔍 Análisis Detallado
+
+### Resultados por Categoría:
+"""
+        
+        # Agregar resultados por categoría
+        for category_name, category_data in scoring['categories'].items():
+            category_title = category_name.replace('_', ' ').title()
+            earned = category_data['earned']
+            possible = category_data['possible']
+            percentage = category_data['percentage']
+            
+            report += f"- **{category_title}**: {earned:.1f}/{possible} puntos ({percentage:.1f}%)\n"
+        
+        # Agregar detalles de checks individuales
+        report += "\n### Resultados por Check:\n"
+        for check_name, check_result in self.results.items():
+            if isinstance(check_result, dict) and 'score' in check_result:
+                score = check_result['score']
+                max_score = check_result.get('max_score', 0)
+                check_title = check_name.replace('_', ' ').title()
+                report += f"- **{check_title}**: {score}/{max_score} puntos\n"
+        
+        # Agregar recomendaciones
+        report += "\n## 🎯 Recomendaciones\n\n"
+        
+        # Recopilar recomendaciones de todos los checks
+        all_recommendations = []
+        for check_result in self.results.values():
+            if isinstance(check_result, dict) and 'recommendations' in check_result:
+                all_recommendations.extend(check_result['recommendations'])
+        
+        if all_recommendations:
+            for rec in all_recommendations[:10]:  # Limitar a 10 recomendaciones
+                report += f"- {rec}\n"
+        else:
+            report += "- ¡Excelente trabajo! Continúa mejorando tu implementación.\n"
+        
+        # Recursos adicionales
+        report += f"""
+## 📚 Recursos de Apoyo
+
+- [FastAPI Testing](https://fastapi.tiangolo.com/tutorial/testing/)
+- [Pytest Documentation](https://docs.pytest.org/)
+- [SQLAlchemy Testing](https://docs.sqlalchemy.org/en/14/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-for-test-suites)
+
+## 📊 Resumen
+
+- **Umbral de Aprobación**: {self.criteria['week_info'].get('passing_threshold', 75)}%
+- **Tu Puntuación**: {final_score:.1f}%
+- **Estado**: {status}
+
+{'¡Felicitaciones! Has aprobado esta evaluación.' if passed else 'Revisa las recomendaciones y vuelve a intentar.'}
+
+**¡Sigue adelante con tu aprendizaje! 🚀**
+"""
+        
+        return report
 
 
 def create_evaluator(student_repo_path: str) -> Week05Evaluator:

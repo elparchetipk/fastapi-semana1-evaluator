@@ -1,0 +1,87 @@
+name: "Entrega Semana 5 - Testing y Documentación Avanzada"
+description: "Envía la URL de tu repositorio público con la semana 5 - Testing y Documentación Avanzada"
+title: "[SEM5] Entrega - <Ficha> - <ApellidoNombre>"
+labels: ["semana5", "submission"]
+body:
+  - type: input
+    id: student_name
+    attributes:
+      label: Nombre completo
+      placeholder: "Tu nombre y apellido"
+    validations:
+      required: true
+  - type: input
+    id: ficha
+    attributes:
+      label: Ficha / Curso
+      placeholder: "Ej: 3147246"
+    validations:
+      required: true
+  - type: input
+    id: repo_url
+    attributes:
+      label: URL del repositorio (público)
+      placeholder: "https://github.com/usuario/ficha-apellido-nombre-fastapi-semana5"
+      description: "⚠️ IMPORTANTE: El repositorio debe seguir exactamente este formato de nombre: `ficha-apellido-nombre-fastapi-semana5`"
+    validations:
+      required: true
+  - type: checkboxes
+    id: requirements
+    attributes:
+      label: "Checklist de Requisitos"
+      description: "Verifica que tu entrega cumple con todos los requisitos básicos:"
+      options:
+        - label: "✅ Tests con Pytest configurado (pytest.ini o pyproject.toml)"
+          required: true
+        - label: "✅ Estructura de tests organizada (directorio `tests/`)"
+          required: true
+        - label: "✅ Tests unitarios para modelos y funciones utilitarias"
+          required: true
+        - label: "✅ Tests de endpoints con TestClient"
+          required: true
+        - label: "✅ Tests de integración con base de datos"
+          required: true
+        - label: "✅ Manejo de errores con tests específicos"
+          required: true
+        - label: "✅ Documentación OpenAPI personalizada"
+          required: true
+        - label: "✅ README.md con información de deployment"
+          required: true
+        - label: "✅ Dependencies de testing en requirements.txt"
+          required: true
+  - type: dropdown
+    id: test_coverage
+    attributes:
+      label: "Cobertura de Tests"
+      description: "¿Qué tan completa consideras tu cobertura de tests?"
+      options:
+        - "Alta (>80% de código cubierto)"
+        - "Media (50-80% de código cubierto)"
+        - "Básica (<50% de código cubierto)"
+        - "No estoy seguro/a"
+    validations:
+      required: true
+  - type: textarea
+    id: testing_approach
+    attributes:
+      label: "Enfoque de Testing"
+      placeholder: "Describe brevemente tu estrategia de testing: ¿Qué tipos de tests implementaste? ¿Usaste mocks? ¿Cómo organizaste tus tests?"
+      description: "Opcional: Explica tu enfoque para ayudar en la evaluación"
+  - type: textarea
+    id: documentation_features
+    attributes:
+      label: "Características de Documentación"
+      placeholder: "Lista las mejoras que hiciste a la documentación: OpenAPI customizations, ejemplos, información de deployment, etc."
+      description: "Opcional: Destaca las mejoras en documentación que implementaste"
+  - type: textarea
+    id: challenges
+    attributes:
+      label: "Desafíos y Aprendizajes"
+      placeholder: "¿Qué fue lo más desafiante? ¿Qué aprendiste durante esta semana?"
+      description: "Opcional: Comparte tu experiencia con testing y documentación avanzada"
+  - type: textarea
+    id: notes
+    attributes:
+      label: "Notas adicionales"
+      placeholder: "Comentarios adicionales para el instructor"
+      description: "Opcional: Cualquier información adicional que consideres relevante"
