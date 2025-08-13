@@ -31,14 +31,14 @@ dev_requirements = [
 ]
 
 setup(
-    name="fastapi-evaluator",
+    name="fastapi-course-evaluator",
     version="1.0.0",
-    description="Sistema de evaluación automática para bootcamp de FastAPI",
+    description="Sistema de evaluación automática para curso completo de FastAPI",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="EPTI Dev Team",
     author_email="dev@epti.com",
-    url="https://github.com/epti-dev/fastapi-evaluator",
+    url="https://github.com/epti-dev/fastapi-course-evaluator",
     packages=find_packages(),
     include_package_data=True,
     package_data={
@@ -76,8 +76,8 @@ setup(
     python_requires=">=3.8",
     keywords="fastapi, evaluation, bootcamp, automated-testing, education",
     project_urls={
-        "Bug Reports": "https://github.com/epti-dev/fastapi-evaluator/issues",
-        "Source": "https://github.com/epti-dev/fastapi-evaluator",
-        "Documentation": "https://github.com/epti-dev/fastapi-evaluator/wiki"
+        "Bug Reports": "https://github.com/epti-dev/fastapi-course-evaluator/issues",
+        "Source": "https://github.com/epti-dev/fastapi-course-evaluator",
+        "Documentation": "https://github.com/epti-dev/fastapi-course-evaluator/tree/main/docs"
     }
 )

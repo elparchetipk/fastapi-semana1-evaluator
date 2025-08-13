@@ -1,0 +1,68 @@
+---
+name: 🔍 Debug Workflow
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    if: contains(github.event.comment.body, '/debug')
+
+    steps:
+      - name: 🔍 Debug información
+        run: |
+          echo "=== DEBUGGING INFORMACIÓN ==="
+          echo "Event name: ${{ github.event_name }}"
+          echo "Comment body: '${{ github.event.comment.body }}'"
+          echo "Issue title: '${{ github.event.issue.title }}'"
+          echo "Issue number: ${{ github.event.issue.number }}"
+          echo "Repository: ${{ github.repository }}"
+          echo ""
+          echo "=== LABELS ==="
+          echo "All labels: ${{ toJson(github.event.issue.labels) }}"
+
+          # Verificar labels específicos
+          if [[ "${{ contains(github.event.issue.labels.*.name, 'semana1') }}" == "true" ]]; then
+            echo "✅ Label 'semana1' encontrado"
+          else
+            echo "❌ Label 'semana1' NO encontrado"
+          fi
+
+          if [[ "${{ contains(github.event.issue.labels.*.name, 'submission') }}" == "true" ]]; then
+            echo "✅ Label 'submission' encontrado"
+          else
+            echo "❌ Label 'submission' NO encontrado"
+          fi
+
+          echo ""
+          echo "=== ISSUE BODY ==="
+          echo "Issue body:"
+          echo "${{ github.event.issue.body }}"
+
+      - name: 📝 Responder en el issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🔍 Debug Results
+              
+              **Event:** ${{ github.event_name }}
+              **Comment:** \`${{ github.event.comment.body }}\`
+              **Labels:** ${JSON.stringify(context.payload.issue.labels.map(l => l.name))}
+              
+              **Conditions check:**
+              - semana1: ${{ contains(github.event.issue.labels.*.name, 'semana1') }}
+              - submission: ${{ contains(github.event.issue.labels.*.name, 'submission') }}
+              
+              **Workflow triggered successfully!** ✅
+              `
+            });

@@ -1,109 +1,107 @@
 week_info:
   number: 5
-  title: 'Autenticación y Autorización'
-  description: 'Implementación de seguridad con JWT y OAuth2'
-  passing_threshold: 70
+  title: 'Testing y Documentación Avanzada'
+  description: 'Testing automatizado, documentación API y deployment preparation'
+  passing_threshold: 75
   repository_template: 'ficha-apellido-nombre-fastapi-semana5'
 
 learning_objectives:
-  - 'Implementar autenticación JWT'
-  - 'Configurar OAuth2 con FastAPI'
-  - 'Crear middleware de autorización'
-  - 'Manejar roles y permisos'
-  - 'Proteger endpoints sensibles'
+  - 'Implementar testing automatizado con pytest'
+  - 'Crear tests de integración para APIs'
+  - 'Documentar APIs con OpenAPI personalizado'
+  - 'Configurar testing de base de datos'
+  - 'Preparar aplicación para deployment'
 
 categories:
-  authentication:
-    weight: 40
-    description: 'Sistema de autenticación'
+  testing_setup:
+    weight: 35
+    description: 'Configuración y estructura de testing'
     checks:
-      - name: 'jwt_implementation'
-        points: 15
-        description: 'Implementación de JWT tokens'
-        required: true
-      - name: 'login_endpoint'
-        points: 10
-        description: 'Endpoint de login funcional'
-        required: true
-      - name: 'password_hashing'
+      - name: 'pytest_configuration'
         points: 8
-        description: 'Hash seguro de contraseñas'
+        description: 'Configuración correcta de pytest'
         required: true
-      - name: 'token_validation'
+      - name: 'test_dependencies'
         points: 7
-        description: 'Validación de tokens JWT'
+        description: 'Dependencies de testing (pytest, httpx, etc.)'
         required: true
-
-  authorization:
-    weight: 30
-    description: 'Control de acceso y permisos'
-    checks:
-      - name: 'protected_endpoints'
+      - name: 'test_structure'
+        points: 8
+        description: 'Estructura organizada de tests'
+        required: true
+      - name: 'test_database_config'
         points: 12
-        description: 'Endpoints protegidos con autenticación'
-        required: true
-      - name: 'role_based_access'
-        points: 10
-        description: 'Control de acceso basado en roles'
-        required: false
-      - name: 'dependency_injection'
-        points: 8
-        description: 'Uso de dependencias para autenticación'
+        description: 'Base de datos de testing separada'
         required: true
 
-  security:
-    weight: 20
-    description: 'Medidas de seguridad'
+  unit_testing:
+    weight: 25
+    description: 'Tests unitarios y de componentes'
     checks:
-      - name: 'secure_endpoints'
+      - name: 'model_tests'
         points: 8
-        description: 'Endpoints seguros (HTTPS ready)'
+        description: 'Tests de modelos Pydantic y SQLAlchemy'
         required: true
-      - name: 'input_sanitization'
+      - name: 'utility_function_tests'
         points: 7
-        description: 'Sanitización de entradas'
+        description: 'Tests de funciones utilitarias'
         required: true
-      - name: 'error_handling_security'
-        points: 5
-        description: 'Manejo seguro de errores'
+      - name: 'business_logic_tests'
+        points: 10
+        description: 'Tests de lógica de negocio'
         required: true
 
-  user_management:
-    weight: 10
-    description: 'Gestión de usuarios'
+  integration_testing:
+    weight: 25
+    description: 'Tests de integración de API'
     checks:
-      - name: 'user_registration'
-        points: 5
-        description: 'Endpoint de registro de usuarios'
+      - name: 'endpoint_tests'
+        points: 10
+        description: 'Tests de todos los endpoints principales'
         required: true
-      - name: 'user_profile'
+      - name: 'database_integration_tests'
+        points: 8
+        description: 'Tests de operaciones de base de datos'
+        required: true
+      - name: 'error_handling_tests'
+        points: 7
+        description: 'Tests de manejo de errores'
+        required: true
+
+  documentation:
+    weight: 15
+    description: 'Documentación avanzada de API'
+    checks:
+      - name: 'openapi_customization'
         points: 5
-        description: 'Gestión de perfil de usuario'
+        description: 'Personalización de documentación OpenAPI'
         required: false
+      - name: 'api_examples'
+        points: 5
+        description: 'Ejemplos de requests/responses en docs'
+        required: false
+      - name: 'deployment_readme'
+        points: 5
+        description: 'Documentación para deployment'
+        required: true
 
 automation:
   timeout_seconds: 300
   required_files:
     - 'main.py'
     - 'requirements.txt'
-    - 'auth/'
-    - 'models/user.py'
+    - 'tests/'
 
   dependency_checks:
-    - package: 'python-jose'
+    - package: 'pytest'
       required: true
-    - package: 'passlib'
+    - package: 'httpx'
       required: true
-    - package: 'python-multipart'
-      required: true
+    - package: 'pytest-asyncio'
+      required: false
 
-  auth_tests:
-    - endpoint: '/token'
-      method: 'POST'
-      test_type: 'login'
-    - endpoint: '/users/me'
-      method: 'GET'
-      test_type: 'protected'
-    - endpoint: '/users/'
-      method: 'POST'
-      test_type: 'registration'
+  test_patterns:
+    - pattern: 'test_*.py'
+      directory: 'tests/'
+    - pattern: '*_test.py'
+      directory: 'tests/'
