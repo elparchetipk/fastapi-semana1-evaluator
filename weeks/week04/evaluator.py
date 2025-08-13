@@ -21,7 +21,7 @@ try:
     from checks.complex_relationships import check_complex_relationships
     from checks.advanced_queries import check_advanced_queries
     from checks.code_organization import check_code_organization
-    from checks.performance_optimization import check_performance_optimization
+    from checks.database_constraints import check_database_constraints
 except ImportError as e:
     print(f"Warning: Could not import some Week 4 checks: {e}")
     # Fallback functions
@@ -29,7 +29,7 @@ except ImportError as e:
     def check_complex_relationships(repo_path): return {"error": "Module not available"}
     def check_advanced_queries(repo_path): return {"error": "Module not available"}
     def check_code_organization(repo_path): return {"error": "Module not available"}
-    def check_performance_optimization(repo_path): return {"error": "Module not available"}
+    def check_database_constraints(repo_path): return {"error": "Module not available"}
 
 
 class Week04Evaluator(BaseEvaluator):
@@ -40,59 +40,7 @@ class Week04Evaluator(BaseEvaluator):
     - Advanced Database: Migraciones Alembic, relaciones complejas
     - Advanced CRUD: Queries complejas, operaciones en lote
     - Code Organization: Estructura profesional del código
-    - Performance Optimization: Optimización y rendimiento
-    """
-    
-    def __init__(self, student_repo_path: str):
-        super().__init__(
-            week_number=4,
-            student_repo_path=student_repo_path
-        )
-        self.common_checks = CommonChecks(self.repo_path)
-
-"""
-Evaluador específico para Semana 4 - Bases de Datos Avanzadas con FastAPI
-SQLAlchemy avanzado: migraciones, relaciones, consultas complejas
-"""
-import sys
-from pathlib import Path
-from typing import Dict, Any, List
-
-# Agregar el directorio padre al path para importar core
-sys.path.append(str(Path(__file__).parent.parent.parent))
-
-from core.base_evaluator import BaseEvaluator
-from core.common_checks import CommonChecks
-
-# Import checks using absolute imports
-current_dir = Path(__file__).parent
-sys.path.append(str(current_dir))
-
-try:
-    from checks.alembic_migrations import check_alembic_migrations
-    from checks.complex_relationships import check_complex_relationships
-    from checks.advanced_queries import check_advanced_queries
-    from checks.code_organization import check_code_organization
-    from checks.performance_optimization import check_performance_optimization
-except ImportError as e:
-    print(f"Warning: Could not import some Week 4 checks: {e}")
-    # Fallback functions
-    def check_alembic_migrations(repo_path): return {"error": "Module not available"}
-    def check_complex_relationships(repo_path): return {"error": "Module not available"}
-    def check_advanced_queries(repo_path): return {"error": "Module not available"}
-    def check_code_organization(repo_path): return {"error": "Module not available"}
-    def check_performance_optimization(repo_path): return {"error": "Module not available"}
-
-
-class Week04Evaluator(BaseEvaluator):
-    """
-    Evaluador para Semana 4: Bases de Datos Avanzadas con FastAPI
-    
-    Evalúa:
-    - Advanced Database: Migraciones Alembic, relaciones complejas
-    - Advanced CRUD: Queries complejas, operaciones en lote
-    - Code Organization: Estructura profesional del código
-    - Performance Optimization: Optimización y rendimiento
+    - Database Constraints: Validaciones y restricciones de base de datos
     """
     
     def __init__(self, student_repo_path: str):
@@ -116,7 +64,7 @@ class Week04Evaluator(BaseEvaluator):
         results["complex_relationships"] = check_complex_relationships(str(self.repo_path))
         results["advanced_queries"] = check_advanced_queries(str(self.repo_path))
         results["code_organization"] = check_code_organization(str(self.repo_path))
-        results["performance_optimization"] = check_performance_optimization(str(self.repo_path))
+        results["database_constraints"] = check_database_constraints(str(self.repo_path))
         
         # Checks de calidad de código
         results["code_quality"] = self._check_code_quality()
@@ -287,6 +235,10 @@ class Week04Evaluator(BaseEvaluator):
         organization_result = results.get("code_organization", {})
         if not organization_result.get("models_separated", False):
             feedback.append("• Organiza modelos en archivos separados en models/")
+        
+        constraints_result = results.get("database_constraints", {})
+        if not constraints_result.get("has_constraints", False):
+            feedback.append("• Implementa restricciones de base de datos (unique, nullable, check)")
         
         return feedback
     
